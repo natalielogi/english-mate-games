@@ -1,0 +1,2017 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="color-scheme" content="light dark">
+<title>Wolf trail</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root {
+  --bg: #F3F5F9;
+  --surface: #FFFFFF;
+  --ink: #1B2230;
+  --muted: #5A6479;
+  --line: #DDE3EE;
+  --accent: #35558A;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #E7EDF8;
+  --field-a: #D9E4F6;
+  --field-b: #F5EFE3;
+  --ground: #E4DCCB;
+  --lane: rgba(27, 34, 48, .16);
+  --card: #FFFFFF;
+  --card-line: #C3CFE4;
+  --moon: #FFF1BF;
+  --moon-glow: rgba(255, 214, 120, .55);
+  --scrim: rgba(16, 20, 30, .55);
+  --hl: #D6E2F7;
+  --dot: #8F9CB6;
+  --ok: #1D7447;
+  --ok-soft: #E1F3E8;
+  --bad: #B3362F;
+  --bad-soft: #FBE6E4;
+  --shadow: 0 1px 2px rgba(27, 34, 48, .06), 0 8px 24px rgba(27, 34, 48, .06);
+  --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --display: 'Space Grotesk', 'Inter', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10141E;
+    --surface: #1A2030;
+    --ink: #E8ECF4;
+    --muted: #A3AEC6;
+    --line: #2C3652;
+    --accent: #8DB0EB;
+    --accent-ink: #0F1522;
+    --accent-soft: #22304A;
+  --field-a: #121A33;
+  --field-b: #233159;
+  --ground: #19213A;
+  --lane: rgba(232, 236, 244, .14);
+  --card: #1F2842;
+  --card-line: #3A4668;
+  --moon: #EEF2FF;
+  --moon-glow: rgba(160, 185, 255, .45);
+  --scrim: rgba(5, 8, 14, .7);
+    --hl: #2E4068;
+    --dot: #6F7D99;
+    --ok: #6FD3A1;
+    --ok-soft: #173528;
+    --bad: #FF9C94;
+    --bad-soft: #3A1F20;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10141E;
+  --surface: #1A2030;
+  --ink: #E8ECF4;
+  --muted: #A3AEC6;
+  --line: #2C3652;
+  --accent: #8DB0EB;
+  --accent-ink: #0F1522;
+  --accent-soft: #22304A;
+  --field-a: #121A33;
+  --field-b: #233159;
+  --ground: #19213A;
+  --lane: rgba(232, 236, 244, .14);
+  --card: #1F2842;
+  --card-line: #3A4668;
+  --moon: #EEF2FF;
+  --moon-glow: rgba(160, 185, 255, .45);
+  --scrim: rgba(5, 8, 14, .7);
+  --hl: #2E4068;
+  --dot: #6F7D99;
+  --ok: #6FD3A1;
+  --ok-soft: #173528;
+  --bad: #FF9C94;
+  --bad-soft: #3A1F20;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+:root {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-text-size-adjust: 100%;
+  padding-block: 24px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 560px; margin: 0 auto; }
+button { font: inherit; color: inherit; }
+.en { font-family: var(--display); }
+
+/* ---------- shared ---------- */
+.eyebrow {
+  display: inline-block;
+  font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--accent); background: var(--accent-soft);
+  padding: 5px 11px; border-radius: 999px;
+}
+h1 {
+  margin: 14px 0 10px;
+  font-size: clamp(32px, 8vw, 44px); line-height: 1.06; letter-spacing: -.02em; font-weight: 700;
+  text-wrap: balance;
+}
+h2 { margin: 0; font-size: 18px; line-height: 1.25; font-weight: 700; text-wrap: balance; }
+.lead { margin: 0 0 20px; color: var(--muted); }
+.label {
+  display: block; margin-bottom: 6px;
+  font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent);
+}
+.btn {
+  font-size: 15px; font-weight: 600;
+  color: var(--accent); background: transparent;
+  border: 1.5px solid var(--accent); border-radius: 999px;
+  padding: 0 22px; min-height: 48px; cursor: pointer;
+}
+.btn:hover { background: var(--accent-soft); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn:disabled { opacity: .45; cursor: not-allowed; filter: none; }
+.link-btn {
+  font-size: 14px; font-weight: 600; color: var(--accent);
+  background: none; border: 0; padding: 0 4px; min-height: 44px; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 4px;
+}
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.muted { color: var(--muted); }
+
+/* ---------- start ---------- */
+.modes { display: grid; gap: 12px; margin: 0 0 18px; }
+.mode {
+  display: flex; flex-direction: column; gap: 14px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+  padding: 18px; box-shadow: var(--shadow);
+}
+.mode p { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
+.switch-row { display: flex; align-items: center; gap: 12px; margin: 0 0 26px; min-height: 44px; }
+.switch {
+  flex: none; position: relative; width: 48px; height: 28px; padding: 0;
+  border-radius: 999px; border: 1.5px solid var(--dot); background: var(--bg); cursor: pointer;
+}
+.switch::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 19px; height: 19px;
+  border-radius: 50%; background: var(--dot);
+}
+.switch[aria-checked="true"] { background: var(--accent); border-color: var(--accent); }
+.switch[aria-checked="true"]::after { left: 23px; background: var(--accent-ink); }
+.h-sm { margin: 0 0 10px; }
+.idiom-list { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 8px; }
+.irow {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px;
+}
+.irow-text { min-width: 0; display: grid; gap: 2px; }
+.irow-title { font-family: var(--display); font-weight: 700; font-size: 17px; overflow-wrap: anywhere; }
+.irow-gist { font-size: 13px; color: var(--muted); }
+.pips { flex: none; display: inline-flex; gap: 5px; }
+.pip { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--dot); }
+.pip.on { background: var(--accent); border-color: var(--accent); }
+.best { margin: 0 0 8px; font-size: 14px; color: var(--muted); }
+
+/* ---------- play ---------- */
+.hud { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; margin-bottom: 4px; }
+.hud-right { display: inline-flex; gap: 14px; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.lives { color: var(--bad); font-size: 20px; letter-spacing: .12em; line-height: 1; }
+.track-wrap { padding: 0 11px; margin: 10px 0 6px; }
+.track { position: relative; height: 8px; border-radius: 999px; background: var(--line); }
+.track-fill { height: 100%; width: 0; border-radius: 999px; background: var(--accent); }
+.paw {
+  position: absolute; top: 50%; left: 0; transform: translate(-50%, -50%);
+  display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--bg); color: var(--accent); border: 2px solid var(--accent);
+}
+.paw svg { width: 15px; height: 15px; display: block; }
+.track-label { display: flex; justify-content: space-between; gap: 12px; margin: 8px 0 12px; font-size: 13px; color: var(--muted); }
+.q-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+.q-head .label { margin: 0; }
+.dial { position: relative; flex: none; width: 68px; height: 68px; }
+.dial svg { display: block; width: 100%; height: 100%; }
+.dial-track, .dial-ring { fill: none; stroke-width: 5; }
+.dial-track { stroke: var(--line); }
+.dial-ring { stroke: var(--accent); stroke-linecap: round; stroke-dasharray: 175.93; stroke-dashoffset: 0; }
+.dial-text {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font-size: 17px; font-weight: 700; letter-spacing: -.01em; font-variant-numeric: tabular-nums; color: var(--ink);
+}
+.dial.low .dial-ring { stroke: var(--bad); }
+.dial.low .dial-text { color: var(--bad); }
+
+.q-card {
+  position: relative; overflow: hidden;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+  padding: 22px 18px 6px; box-shadow: var(--shadow); margin-bottom: 14px;
+}
+.q-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--accent); }
+.sent { margin: 0; font-size: 19px; line-height: 2; overflow-wrap: anywhere; }
+.w {
+  font: inherit; line-height: normal; color: inherit; background: none; border: 0; margin: 0; padding: 2px 1px;
+  cursor: pointer; border-radius: 4px;
+  text-decoration: underline dotted; text-decoration-color: var(--dot); text-underline-offset: 5px;
+  -webkit-tap-highlight-color: transparent;
+}
+.w:hover { text-decoration-color: var(--accent); }
+.w.idiom, .gap.idiom { background: var(--hl); font-weight: 600; }
+.w.idiom { border-radius: 0; }
+.gap.idiom { padding: 2px 0; line-height: normal; }
+.blank {
+  display: inline-block; min-width: 4.4em; height: 1.35em; margin: 0 2px; vertical-align: -.3em;
+  border-bottom: 2.5px solid var(--accent); background: var(--accent-soft); border-radius: 6px 6px 0 0;
+}
+.slotgroup { display: inline-flex; flex-wrap: wrap; gap: 4px; vertical-align: middle; margin: 2px 2px; }
+.slot {
+  min-width: 3.4em; min-height: 40px; padding: 0 10px; margin: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1.5px dashed var(--accent); border-radius: 10px; background: var(--accent-soft);
+  font-weight: 700; color: var(--ink); cursor: pointer;
+}
+.slot.filled { border-style: solid; }
+.slot.ok { border: 1.5px solid var(--ok); background: var(--ok-soft); color: var(--ok); }
+.slot.bad { border: 1.5px solid var(--bad); background: var(--bad-soft); color: var(--bad); }
+.slot:disabled { cursor: default; }
+.peek { min-height: 28px; margin: 4px 0 0; font-size: 15px; color: var(--ink); }
+.peek.idle { color: var(--muted); }
+.hint-row { padding: 2px 0 8px; }
+.ru {
+  margin: 4px 0 8px; padding: 10px 14px;
+  background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0;
+}
+
+.options { display: grid; gap: 10px; }
+.opt {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 58px; padding: 10px 14px;
+  text-align: left; cursor: pointer;
+  background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px;
+}
+.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt-key {
+  flex: none; width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center;
+  background: var(--accent-soft); color: var(--accent); font-size: 13px; font-weight: 700;
+}
+.opt-text { flex: 1; min-width: 0; font-family: var(--display); font-weight: 700; font-size: 18px; overflow-wrap: anywhere; }
+.opt-mark { flex: none; font-weight: 700; font-size: 18px; }
+.opt:disabled { cursor: default; color: var(--ink); }
+.opt.dim { opacity: .55; }
+.opt.ok { border-color: var(--ok); background: var(--ok-soft); }
+.opt.ok .opt-mark { color: var(--ok); }
+.opt.bad { border-color: var(--bad); background: var(--bad-soft); }
+.opt.bad .opt-mark { color: var(--bad); }
+
+.bank { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.tile {
+  min-height: 46px; padding: 0 16px; font-weight: 600; font-size: 17px; cursor: pointer;
+  background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; box-shadow: 0 1px 0 var(--line);
+}
+.tile:hover:not(:disabled) { border-color: var(--accent); }
+.tile.used { opacity: .25; pointer-events: none; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+
+.fb {
+  margin-top: 14px; padding: 16px 16px 18px; background: var(--surface);
+  border: 1px solid var(--line); border-left: 5px solid var(--dot); border-radius: 14px;
+}
+.fb.ok { border-left-color: var(--ok); }
+.fb.bad { border-left-color: var(--bad); }
+.fb-head { font-size: 18px; font-weight: 700; }
+.fb.ok .fb-head { color: var(--ok); }
+.fb.bad .fb-head { color: var(--bad); }
+.fb p { margin: 6px 0 0; }
+.fb-answer strong { font-family: var(--display); font-weight: 700; }
+.fb-meaning { color: var(--muted); font-size: 15px; }
+.fb-form { color: var(--muted); font-size: 14px; }
+.fb .btn { margin-top: 14px; width: 100%; }
+
+/* ---------- end ---------- */
+.stars { font-size: 38px; letter-spacing: .12em; color: var(--accent); line-height: 1.1; margin: 6px 0; }
+.stats { margin: 0 0 18px; color: var(--muted); }
+.review { list-style: none; margin: 0 0 20px; padding: 0; display: grid; gap: 10px; }
+.review li { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+.review .irow-title { display: block; margin-bottom: 4px; }
+.review p { margin: 4px 0 0; font-size: 15px; }
+.review .ex { font-size: 16px; }
+.hl { background: var(--hl); font-weight: 600; }
+.end-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.copy-box {
+  width: 100%; margin-top: 10px; padding: 10px 12px; font: inherit; font-size: 14px;
+  color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .slot.bad, .opt.bad { animation: nudge .28s; }
+  @keyframes nudge { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+}
+
+/* ---------- extras: character, start art, speed switch ---------- */
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.start-art {
+  margin: 4px 0 20px; height: 148px; border-radius: 22px; position: relative; overflow: hidden;
+  background: linear-gradient(180deg, var(--field-a), var(--field-b));
+  border: 1px solid var(--line);
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.start-art::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 22px; background: var(--ground); }
+.start-art .hero { position: relative; z-index: 1; height: 98px; width: auto; max-width: 42%; margin-bottom: 9px; object-fit: contain; }
+.mini-card {
+  position: absolute; top: 14px; padding: 7px 10px; border-radius: 12px; font-size: 12.5px; font-weight: 700;
+  background: var(--card); border: 1.5px solid var(--card-line); box-shadow: var(--shadow);
+}
+.mc1 { left: 12px; transform: rotate(-5deg); }
+.mc2 { right: 12px; top: 32px; transform: rotate(4deg); }
+.end-art { display: flex; justify-content: flex-start; margin: 0 0 6px; }
+.end-art .hero { height: 88px; width: auto; max-width: 40%; object-fit: contain; }
+
+.speed { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.seg {
+  text-align: left; padding: 9px 12px; min-height: 54px; cursor: pointer;
+  background: var(--bg); border: 1.5px solid var(--line); border-radius: 14px;
+  font-weight: 700; font-size: 15px; display: flex; flex-direction: column; gap: 1px;
+}
+.seg small { font-weight: 500; font-size: 12.5px; color: var(--muted); }
+.seg[aria-checked="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.btn.small { min-height: 44px; font-size: 14px; padding: 0 16px; }
+.btn[aria-pressed="true"] { background: var(--accent-soft); }
+.end-actions .btn { text-decoration: none; }
+
+/* ---------- mode 3: «Лови значение» ---------- */
+body.catching { padding-block: 10px 12px; }
+#s-catch {
+  display: flex; flex-direction: column;
+  min-height: calc(100vh - 22px);
+  min-height: calc(100dvh - 22px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+}
+.c-hud { display: flex; align-items: center; gap: 12px; min-height: 44px; }
+.c-hearts { display: flex; gap: 3px; flex: none; }
+.c-heart { width: 24px; height: 24px; fill: var(--bad); transition: opacity .2s, transform .2s; }
+.c-heart.lost { opacity: .22; transform: scale(.85); }
+.c-prog { flex: 1 1 auto; min-width: 0; }
+.c-prog-text { font-size: 12.5px; font-weight: 700; color: var(--muted); line-height: 1.2; }
+.c-prog-bar { height: 6px; border-radius: 999px; background: var(--line); margin-top: 5px; overflow: hidden; }
+.c-prog-bar i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width .3s; }
+.c-score { flex: none; font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; min-width: 44px; text-align: right; }
+.c-icon-btn {
+  flex: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; padding: 0;
+  background: var(--surface); border: 1.5px solid var(--line);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.c-icon-btn svg { width: 18px; height: 18px; fill: var(--ink); }
+.c-prompt {
+  margin-top: 6px; padding: 12px 14px 8px; border-radius: 18px; position: relative; overflow: hidden;
+  background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow);
+}
+.c-prompt::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--accent); }
+.c-prompt .label { margin-top: 2px; }
+.c-sentence { margin: 0; font-size: 17px; line-height: 1.95; overflow-wrap: anywhere; }
+.c-sentence.ru { font-size: 16px; line-height: 1.5; }
+.c-prompt .peek { min-height: 24px; margin: 2px 0 0; font-size: 14px; }
+
+.c-field {
+  position: relative; flex: 1 1 auto; min-height: 250px; margin-top: 10px; border-radius: 22px; overflow: hidden;
+  background: linear-gradient(180deg, var(--field-a), var(--field-b));
+  border: 1px solid var(--line);
+  touch-action: none; user-select: none; -webkit-user-select: none; cursor: ew-resize;
+}
+.c-field::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent calc(33.333% - 1px), var(--lane) calc(33.333% - 1px), var(--lane) 33.333%, transparent 33.333%),
+    linear-gradient(90deg, transparent calc(66.666% - 1px), var(--lane) calc(66.666% - 1px), var(--lane) 66.666%, transparent 66.666%);
+}
+.c-field::after {
+  content: ""; position: absolute; right: 16px; top: 14px; width: 40px; height: 40px; border-radius: 50%;
+  background: var(--moon); box-shadow: 0 0 28px 10px var(--moon-glow); pointer-events: none; z-index: 0; opacity: .85;
+}
+.c-ground { position: absolute; left: 0; right: 0; bottom: 0; height: 20px; background: var(--ground); pointer-events: none; }
+.c-lane {
+  position: absolute; top: 0; left: 0; width: 33.3333%; padding: 0 4px; z-index: 1;
+  transform: translate3d(calc(var(--lane) * 100%), var(--y, -90px), 0);
+  will-change: transform; pointer-events: none;
+}
+.c-lane > div {
+  height: 78px; padding: 6px 4px; display: flex; align-items: center; justify-content: center; text-align: center;
+  font-size: clamp(12.5px, 3.6vw, 14px); line-height: 1.22; font-weight: 700; overflow-wrap: break-word; hyphens: manual;
+  background: var(--card); border: 2px solid var(--card-line); border-radius: 15px; box-shadow: var(--shadow);
+}
+.c-lane.is-right > div { border-color: var(--ok); background: var(--ok-soft); }
+.c-lane.is-wrong > div { border-color: var(--bad); background: var(--bad-soft); animation: c-shake .35s; }
+.c-lane.is-dim > div { opacity: .45; }
+.c-wolf {
+  position: absolute; left: 0; bottom: 8px; width: 33.3333%; z-index: 2; pointer-events: none;
+  display: flex; justify-content: center;
+  transform: translateX(calc(var(--lane, 1) * 100%));
+  transition: transform .14s ease-out;
+}
+.c-hero { height: 60px; width: auto; max-width: 90%; display: block; object-fit: contain; }
+.c-wolf.happy .c-hero { animation: c-hop .4s; }
+.c-wolf.sad .c-hero { animation: c-shake .35s; }
+.c-controls { display: flex; gap: 10px; margin-top: 10px; }
+.c-controls .btn { flex: 1 1 0; }
+@keyframes c-hop { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-14px); } }
+@keyframes c-shake { 0%, 100% { translate: 0 0; } 25% { translate: -5px 0; } 75% { translate: 5px 0; } }
+
+.c-scrim {
+  position: fixed; inset: 0; z-index: 20; background: var(--scrim);
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 16px max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  overflow-y: auto;
+}
+.c-sheet {
+  width: 100%; max-width: 448px; margin: auto auto 0;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 24px; box-shadow: var(--shadow);
+  padding: 18px 18px 16px;
+}
+.c-mh { margin: 0 0 8px; font-size: 22px; line-height: 1.15; font-weight: 800; }
+.c-mh.ok { color: var(--ok); }
+.c-mh.bad { color: var(--bad); }
+.c-sheet .c-en { margin: 0 0 6px; font-size: 16.5px; line-height: 1.5; font-weight: 500; }
+.c-sheet .c-en .hl { padding: 1px 4px; border-radius: 5px; }
+.c-sheet .c-ru { margin: 0 0 12px; font-size: 15px; color: var(--muted); line-height: 1.4; }
+.c-meaning { margin: 0 0 14px; padding: 10px 12px; border-radius: 14px; background: var(--accent-soft); font-size: 14.5px; line-height: 1.4; }
+.c-meaning b { color: var(--accent); font-family: var(--display); }
+.c-meaning .c-note { display: block; margin-top: 4px; color: var(--muted); font-size: 13.5px; }
+.c-again { margin: -4px 0 12px; font-size: 13.5px; color: var(--muted); }
+.c-sheet .row { display: grid; gap: 8px; }
+.c-sheet .btn.big { min-height: 54px; font-size: 18px; width: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .c-wolf { transition: none; }
+  .c-wolf.happy .c-hero, .c-wolf.sad .c-hero, .c-lane.is-wrong > div { animation: none; }
+}
+@media (max-height: 640px) {
+  .c-sentence { font-size: 16px; line-height: 1.85; }
+  .c-prompt { padding: 10px 12px 6px; }
+  .c-field { min-height: 214px; }
+}
+
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="heart-sym" viewBox="0 0 24 24"><path d="M12 21s-7.4-4.7-9.6-9.3A5.4 5.4 0 0 1 12 6.1a5.4 5.4 0 0 1 9.6 5.6C19.4 16.3 12 21 12 21z"/></symbol>
+  </defs>
+</svg>
+<div class="wrap">
+
+  <!-- ===== start ===== -->
+  <section id="s-start">
+    <span class="eyebrow">English, mate! · 12+</span>
+    <h1>Wolf trail</h1>
+    <p class="lead">Пять идиом про волка в стиле Stray Kids. Ошибки возвращаются через пару карточек, пока идиома не запомнится.</p>
+
+    <div class="start-art" aria-hidden="true">
+      <span class="mini-card mc1">cry wolf</span>
+      <span class="mini-card mc2">a lone wolf</span>
+      <img class="hero" id="hero-start" alt="">
+    </div>
+
+    <div class="modes">
+      <article class="mode">
+        <div>
+          <h2>Выбери идиому</h2>
+          <p>Вставь идиому в пропуск. Три варианта и три жизни. На ответ <span id="time-s">30</span> секунд: хватит, чтобы нажать на незнакомые слова и посмотреть перевод. Серия верных ответов даёт бонус.</p>
+        </div>
+        <button type="button" class="btn primary" data-mode="choose">Играть</button>
+      </article>
+      <article class="mode">
+        <div>
+          <h2>Собери фразу</h2>
+          <p>Спокойный режим без таймера и жизней: собери идиому из слов в нужной форме (cried, wolfed…).</p>
+        </div>
+        <button type="button" class="btn primary" data-mode="build">Играть</button>
+      </article>
+      <article class="mode">
+        <div>
+          <h2>Лови значение</h2>
+          <p>Динамичный режим: с неба падают три значения, а волк ловит верное. Три жизни. Слова переводятся по нажатию, а ещё есть кнопка «Перевод».</p>
+        </div>
+        <div class="speed" role="radiogroup" aria-label="Скорость падения">
+          <button type="button" class="seg" role="radio" aria-checked="true" data-speed="calm">Спокойно<small>время прочитать</small></button>
+          <button type="button" class="seg" role="radio" aria-checked="false" data-speed="fast">Быстрее<small>для тех, кто знает</small></button>
+        </div>
+        <button type="button" class="btn primary" data-mode="catch">Играть</button>
+      </article>
+    </div>
+
+    <div class="switch-row">
+      <button type="button" class="switch" id="no-timer" role="switch" aria-checked="false" aria-labelledby="no-timer-label"></button>
+      <span id="no-timer-label">Без таймера в режиме «Выбери идиому»</span>
+    </div>
+
+    <h2 class="h-sm">Идиомы в игре</h2>
+    <ul class="idiom-list" id="idiom-list"></ul>
+    <p class="best" id="best"></p>
+    <button type="button" class="link-btn" id="reset">Сбросить прогресс</button>
+  </section>
+
+  <!-- ===== play ===== -->
+  <section id="s-play" hidden>
+    <div class="hud">
+      <button type="button" class="link-btn" id="quit">← Выйти</button>
+      <span class="lives" id="lives" role="img"></span>
+      <span class="hud-right"><span id="streak"></span><span id="score"></span></span>
+    </div>
+    <div class="track-wrap">
+      <div class="track" id="track" role="progressbar" aria-label="Прогресс раунда" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="track-fill" id="track-fill"></div>
+        <span class="paw" id="paw" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><ellipse cx="12" cy="16.5" rx="5.2" ry="4.2" fill="currentColor"/><ellipse cx="4.6" cy="11" rx="2.1" ry="2.9" fill="currentColor"/><ellipse cx="9" cy="5.8" rx="2.1" ry="2.9" fill="currentColor"/><ellipse cx="15" cy="5.8" rx="2.1" ry="2.9" fill="currentColor"/><ellipse cx="19.4" cy="11" rx="2.1" ry="2.9" fill="currentColor"/></svg>
+        </span>
+      </div>
+    </div>
+    <div class="track-label"><span id="count"></span><span id="mode-label"></span></div>
+    <div class="q-card">
+      <div class="q-head">
+        <span class="label" id="q-label"></span>
+        <div class="dial" id="timer" role="timer" aria-label="Осталось секунд" hidden>
+          <svg viewBox="0 0 64 64" aria-hidden="true">
+            <circle class="dial-track" cx="32" cy="32" r="28"/>
+            <circle class="dial-ring" id="timer-ring" cx="32" cy="32" r="28" transform="rotate(-90 32 32)"/>
+          </svg>
+          <span class="dial-text" id="timer-text" aria-hidden="true">0:30</span>
+        </div>
+      </div>
+      <p class="sent" id="sentence" lang="en"></p>
+      <div class="peek idle" id="peek" aria-live="polite"></div>
+      <div class="hint-row">
+        <button type="button" class="link-btn" id="hint">Показать перевод предложения</button>
+        <p class="ru" id="hint-ru" lang="ru" hidden></p>
+      </div>
+    </div>
+
+    <div id="answer"></div>
+
+    <div class="fb" id="fb" hidden role="status">
+      <div class="fb-head" id="fb-head"></div>
+      <p class="fb-answer" id="fb-answer"></p>
+      <p class="fb-ru" id="fb-ru" lang="ru"></p>
+      <p class="fb-meaning" id="fb-meaning"></p>
+      <p class="fb-form" id="fb-form"></p>
+      <button type="button" class="btn primary" id="next">Дальше</button>
+    </div>
+  </section>
+
+  <!-- ===== play: catch ===== -->
+  <section id="s-catch" hidden>
+    <header class="c-hud">
+      <div class="c-hearts" id="c-hearts" role="img" aria-label="Жизней: 3">
+        <svg class="c-heart"><use href="#heart-sym"/></svg>
+        <svg class="c-heart"><use href="#heart-sym"/></svg>
+        <svg class="c-heart"><use href="#heart-sym"/></svg>
+      </div>
+      <div class="c-prog">
+        <div class="c-prog-text" id="c-prog-text">Поймано 0 из 15</div>
+        <div class="c-prog-bar"><i id="c-prog-bar"></i></div>
+      </div>
+      <div class="c-score" id="c-score" aria-label="Очки">0</div>
+      <button type="button" class="c-icon-btn" id="c-pause" aria-label="Пауза">
+        <svg viewBox="0 0 18 18" aria-hidden="true"><rect x="3" y="2" width="4" height="14" rx="1.2"/><rect x="11" y="2" width="4" height="14" rx="1.2"/></svg>
+      </button>
+    </header>
+
+    <div class="c-prompt">
+      <span class="label" id="c-label">Что значит выделенное?</span>
+      <p class="c-sentence" id="c-sentence" lang="en"></p>
+      <div class="peek idle" id="c-peek" aria-live="polite"></div>
+    </div>
+
+    <div class="c-field" id="c-field" aria-label="Игровое поле: три дорожки. Двигай волка влево и вправо">
+      <div class="c-lane" id="c-card-0" style="--lane:0"><div></div></div>
+      <div class="c-lane" id="c-card-1" style="--lane:1"><div></div></div>
+      <div class="c-lane" id="c-card-2" style="--lane:2"><div></div></div>
+      <div class="c-ground"></div>
+      <div class="c-wolf" id="c-wolf" style="--lane:1"><img class="c-hero" id="c-hero" alt=""></div>
+    </div>
+
+    <div class="c-controls">
+      <button type="button" class="btn small" id="c-hint" aria-pressed="false">Перевод</button>
+      <button type="button" class="btn small" id="c-boost">Быстрее ⏩</button>
+    </div>
+  </section>
+
+  <!-- ===== end ===== -->
+  <section id="s-end" hidden>
+    <div class="end-art" aria-hidden="true"><img class="hero" id="hero-end" alt=""></div>
+    <span class="eyebrow" id="end-eyebrow"></span>
+    <h1 id="end-title"></h1>
+    <div class="stars" id="end-stars" role="img"></div>
+    <p class="stats" id="end-stats"></p>
+    <div id="end-review"></div>
+    <div class="end-actions">
+      <button type="button" class="btn primary" id="again">Играть ещё раз</button>
+      <button type="button" class="btn" id="home">На главную</button>
+      <button type="button" class="btn" id="copy">Скопировать результат</button>
+    </div>
+    <textarea class="copy-box" id="copy-box" rows="2" readonly hidden aria-label="Текст результата"></textarea>
+  </section>
+
+  <div class="c-scrim" id="c-modal" hidden>
+    <div class="c-sheet" id="c-sheet" role="dialog" aria-modal="true" aria-labelledby="c-modal-title"></div>
+  </div>
+  <div class="sr" id="c-live" aria-live="polite"></div>
+
+</div>
+
+<script>
+  // web fonts are optional: loaded without blocking, the page works with system fonts if they are unreachable
+  (function () { try { var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap'; document.head.appendChild(l); } catch (e) {} })();
+</script>
+<script>
+  // Настройки (необязательно). Заполните после публикации игры:
+  window.WOLF_CONFIG = {
+    channelUrl: 'https://t.me/englishmatey', // в конце игры — кнопка «Открыть канал»
+    shareUrl: ''    // ссылка на игру, например 'https://t.me/your_bot/wolftrail' — появится кнопка «Отправить другу»
+  };
+</script>
+<script>
+const HERO = {"neutral":"data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDE2IiBoZWlnaHQ9IjU4OCIgdmlld0JveD0iMCAwIDQxNiA1ODgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xNTIuMjgyIDUuMjk2NkMxNjIuOTgzIC0yLjA2MzIxIDE4Ny45MTMgLTIuMjM2MjIgMTk0LjgwOCA5LjkzMzMyQzIwMy4xNTIgMjQuNjY0NyAyMDMuNjMgNDEuOTU3OSAyMDMuNzY1IDU4LjUwNzVDMjA0LjA1NCA5NC4xMjkzIDIwOS44NzMgMTM0LjgyNiAyMDMuODc3IDE3MC4xODZDMjA5LjM4NyAxNzAuMTY3IDIxNC4zODQgMTcwLjE1NSAyMTguNzk3IDE3MC4xNDRDMjE1LjkzMiAxMzYuMDA2IDIxNC42NzEgNy40MjI5MiAyNjAuNjc2IDEuMDE1MzVDMzAxLjIzNSAtNC42MzM2IDMxNS45MzkgMzkuNjk3NyAzMjguODg4IDcwLjAxNTRDMzQ1LjYyNSAxMDkuMjA1IDM2My43MzkgMTQ5LjE1IDM3Ny41NTMgMTg5LjQ4OEMzOTEuNzE3IDIzMC44NDggNDAwLjY4NiAyNzUuNDczIDQwOS41NzcgMzE4LjQxNUM0MTguMDQ3IDM1Ni40NzYgNDA5Ljc0OSAzOTkuMjIyIDQwNi4wMTMgNDM3LjU2MkM0MDMuNTE3IDQ2My4xNjkgNDAxLjY5MiA0NjkuNzM1IDM5OS42OTkgNDc1LjA2QzM3MS44NTEgNTQ5LjQ5IDI4Ny4yMzIgNTcyLjA2OCAyMTguNzYyIDU4NC44MDhDMTc1LjQyNSA1OTIuODcyIDEzMy43NDcgNTc4LjkwMyA5Mi44Mzk4IDU2NS4xNjdDNzkuNTMzMiA1NjAuNjk4IDU2LjIyNDQgNTU3LjI5OCAzOC41MzcgNTM4Ljk5OUM0LjU4NzIyIDUwMy44NzQgLTIuODUwOTggNDQxLjA0NCAwLjg2OTA2MSAzOTUuMTY5QzkuMzIzMDcgMjkwLjkxNSAxMy4wNzM5IDE3NS45NDggNzMuNDc3NSA4Ni4yMzdDOTQuMzQ5MSA1NS4yMzg4IDEyMS4yOTcgMjYuNjA5NSAxNTIuMjgyIDUuMjk2NloiIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBmaWxsPSIjQkJDNkU2Ii8+CjxwYXRoIGQ9Ik0yMTkuNzQgNDA5LjA2QzIzMi40OTQgNDEwLjUyIDIzOC4zNSA0MTIuNzY0IDIzOC43MzggNDEwLjMyOUMyNDEuOTQ3IDM5MC4xOTUgMjM5Ljg3IDM0My44NDQgMjY0Ljc4IDMzNC43NDFDMjk2LjM2OSAzMjMuMTk3IDMyNy44NTQgMzQxLjA2MSAzNDEuMzM1IDM2OS43NDlDMzU3Ljk4NiA0MDUuMTgyIDM0OS41MzYgNDUzLjM4NyAzOTkuMTY2IDQ1My4zODdMMzg0IDQ5OS42OTVDMzIyLjY4NyA1NjIuMzUxIDI5Ni44MDUgNTYyLjgwNyAyMTkuNzQgNTgwLjE5NUM3MC45NTkyIDU2OC4xODYgMTUuOTg5NyA1NDUuNDg3IDE0LjEyMiA0NTEuMDI5QzEzLjg4ODMgNDM5LjIwOCA1NS4xNTI2IDQ2OS45ODkgNjEuMDczNSA0NTQuOTUxQzczLjE1MDMgNDI0LjI3OCA2OS42NTIzIDM0NS4xNDYgMTE4LjI3MiAzNDIuMjM1QzEzNi4xIDM0MS4xNjggMTY5LjQyMSAzNDAuODQ2IDE3Ni42NjcgMzYyLjQ5MUMxNzkuMzQ2IDM3MC40OTQgMTY5LjU4NiA0MTQuOTMxIDE4Ni4wMzkgNDEyLjYzQzE5OC42NDcgNDEwLjg2NiAyMTEuMzUxIDQwOC4wOTkgMjE5Ljc0IDQwOS4wNloiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0xNTQuNjgxIDUuMTAxNzhDMTY1LjM4MSAtMi4yNTgwMyAxOTAuMzExIC0yLjQzMTA0IDE5Ny4yMDYgOS43Mzg1QzIwNS41NTEgMjQuNDY5OSAyMDYuMDI5IDQxLjc2MzEgMjA2LjE2MyA1OC4zMTI3QzIwNi40NTIgOTMuOTM0NSAyMTIuMjcyIDEzNC42MzEgMjA2LjI3NSAxNjkuOTkxQzIxMS43ODYgMTY5Ljk3MyAyMTYuNzgyIDE2OS45NiAyMjEuMTk1IDE2OS45NDlDMjE4LjMzIDEzNS44MTEgMjE3LjA3IDcuMjI4MDkgMjYzLjA3NCAwLjgyMDUzMUMzMDMuNjM0IC00LjgyODQyIDMxOC4zMzcgMzkuNTAyOSAzMzEuMjg2IDY5LjgyMDVDMzQ4LjAyNCAxMDkuMDEgMzY2LjEzNyAxNDguOTU1IDM3OS45NTEgMTg5LjI5M0MzOTQuMTE1IDIzMC42NTMgNDAzLjA4NSAyNzUuMjc5IDQxMS45NzUgMzE4LjIyQzQyMC40NDYgMzU2LjI4MSA0MTIuMTQ3IDM5OS4wMjcgNDA4LjQxMSA0MzcuMzY3QzQwNS45MTYgNDYyLjk3NCA0MDQuMDkgNDY5LjU0IDQwMi4wOTggNDc0Ljg2NUMzNzQuMjQ5IDU0OS4yOTUgMjg5LjYzMSA1NzEuODczIDIyMS4xNiA1ODQuNjE0QzE3Ny44MjMgNTkyLjY3NyAxMzYuMTQ1IDU3OC43MDggOTUuMjM4MiA1NjQuOTcyQzgxLjkzMTYgNTYwLjUwNCA1OC42MjI4IDU1Ny4xMDMgNDAuOTM1NSA1MzguODA0QzYuOTg1NjYgNTAzLjY4IC0wLjQ1MjU0MyA0NDAuODQ5IDMuMjY3NSAzOTQuOTc0QzExLjcyMTUgMjkwLjcyIDE1LjQ3MjQgMTc1Ljc1MyA3NS44NzU5IDg2LjA0MjJDOTYuNzQ3NSA1NS4wNDM5IDEyMy42OTUgMjYuNDE0NyAxNTQuNjgxIDUuMTAxNzhaTTE4Ny42MzYgMTUuMTYwNEMxNzMuNzEzIC05LjQwNDE5IDEyMi42NzcgNDYuNjYxNSAxMjEuNDQ3IDQ3Ljc2NDlDMjcuMDQ4MiAxMzIuNDMxIDIzLjYzNzQgMjc5Ljg4MSAxNC4yMzIzIDM5NS44NjNDMTAuNzYzNSA0MzguNjQxIDE3LjA5NTcgNDk4LjMxMyA0OC44NDQ2IDUzMS4xNTlDNjQuMDc2NCA1NDYuOTE4IDgzLjAzNjIgNTQ5LjI3MSA5OC43MzkyIDU1NC41NDRDMTM3Ljc0MiA1NjcuNjQxIDE3Ny43OTIgNTgxLjQ5NCAyMTkuMTQ4IDU3My43OTlDMjgzLjQ2MiA1NjEuODMyIDM2NS40MDMgNTQxLjU0OSAzOTEuNzk2IDQ3MS4wMTFDMzkzLjI1OSA0NjcuMDk5IDM5NC45ODUgNDYxLjczMSAzOTcuNDYzIDQzNi4zMDFDNDAxLjA1MiAzOTkuNDcyIDQwOS4zNTIgMzU3LjA2MyA0MDEuMjM5IDMyMC42MUMzOTEuNzg4IDI3OC4wOTkgMzgzLjY2MSAyMzQuMDc4IDM2OS41NDUgMTkyLjg1N0MzNTUuODE4IDE1Mi43NzMgMzM3LjgwMyAxMTMuMDg3IDMyMS4xNyA3NC4xNDE4QzMxNC40NjkgNTguNDUyNiAzMDMuMzE2IDIyLjAwMDIgMjg0LjY3OSAxMy42NzAxQzI3Ni45MjggMTAuMjA2MyAyNTMuMDYyIDguNDc5ODYgMjQ3LjcyNiAxOC4zNDJDMjM2Ljk3MyAzOC4yMTU2IDI0NS43MzQgNjQuNTI2OSAyNDAuMzA2IDg2LjEwNzZDMjMzLjExMyAxMTQuNzAzIDIzNC40NTQgMTQxLjEyNyAyMzIuMTU1IDE2OS45MjdDMjM2Ljc1NSAxNjkuOTE5IDI0OC44OTUgMTY3LjYxMyAyNDguODk1IDE3NS40MTNDMjQ4Ljg5NCAxODguMzY5IDE5Mi4zNDEgMTgxLjA0NCAxODYuMTk2IDE4MS4wNzJDMTYzLjU4IDE4MS4xNzYgMTI1LjMyMyAyMDIuNTUxIDEyMi40ODMgMjI3LjQwOUMxMTkuNTA5IDI1My40NDggMTE4LjgyOCAyODEuNTA3IDEzNi4zOSAzMDIuMzEyQzE0Ny4xMzIgMzE1LjAzNyAxNzAuMDg5IDMyMC4zMDYgMTg2LjE2NyAzMTcuMDU5QzE5Mi4xMTYgMzAyLjkxNyAxODMuNjEgMjc5LjgwOCAxODMuMzUxIDI2NS4zMTFDMTgzLjI4MiAyNjEuNDYxIDIwMS41NDMgMjI3LjQ4NiAyMDguMDEgMjQ0LjE1QzIwOS4xMDggMjQ2Ljk4MSAyMDcuNzAzIDI1MC4xNjggMjA0Ljg3MiAyNTEuMjY3QzE3Ni41NTkgMjYyLjI1NCAyMTkuNTkgMzI4LjU5NyAxODIuNDQ3IDMyOC4yNzhDMTYyLjk0OSAzMjguMTA5IDE0Mi4xNDcgMzI2LjE4NSAxMjcuOTg0IDMwOS40MDdDMTA4LjMyIDI4Ni4xMTIgMTA4LjIyMyAyNTUuMzI3IDExMS41NTUgMjI2LjE2MUMxMTUuNzIgMTg5LjcwMyAxNjMuOTM2IDE3MC4xNiAxOTUuNDQxIDE3MC4wMzJDMTg5LjE4NCAxMzQuNzUgMTk1LjQ1MyA5NC4wMzkgMTk1LjE2NCA1OC40MDI2QzE5NS4wNDYgNDMuODQyNiAxOTUuMDA0IDI4LjE2NzEgMTg3LjYzNiAxNS4xNjA0WiIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGZpbGw9IiM4Mzk5Q0IiLz4KPHBhdGggZD0iTTI3NS42OTQgNzIuNTg2N0MyNTYuOTQ0IDg0LjU1OTkgMjY2LjA4MiAxNTIuNTczIDI2Ni4wODIgMTcyLjE1MkMyNzMuOTM1IDE4MC4zODEgMzM0Ljg2NCAyNDAuNTc4IDMzOC4xMTUgMjIyLjY5MUMzNDEuNzc1IDIwMi41NTMgMzA5LjMwOSA1MS4xMjE1IDI3NS42OTQgNzIuNTg2N1oiIGZpbGw9IiMzQzVBOEEiIHN0cm9rZS13aWR0aD0iMTEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlPSIjM0M1QThBIi8+CjxwYXRoIGQ9Ik0xNTYuMzMzIDg4LjM2NjhDMTY2LjYwNCAxMDcuMTQxIDE2Mi4yNjEgMTYxLjQwMiAxNjAuMTU5IDE1OC44OTRDMTU4LjA1OCAxNTYuMzg2IDgyLjE0NTUgMTk2LjI0IDc1Ljc2NDEgMjAxLjk4MkM2OS4zODI3IDIwNy43MjQgOTIuODEzMiAxMjIuNzQ3IDExNC41NDUgMTAyLjI0MkMxMjIuOTAzIDk0LjM1NjQgMTQ1LjQyNCA2OC40MjYxIDE1Ni4zMzMgODguMzY2OFoiIGZpbGw9IiMzQzVBOEEiIHN0cm9rZS13aWR0aD0iMTEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlPSIjM0M1QThBIi8+CjxwYXRoIGQ9Ik0xMDkuNDk3IDQ3My43MzlDMTA5LjQ5NyA0NzMuNjQyIDEwNi44OTcgNDczLjU0NCAxMDIuODk4IDQ3NC4xMDFDOTcuODgzNyA0NzQuOCAxMDQuOTQyIDQ4OC44MjcgMTA5LjA1MSA0ODkuNTUyQzExMi4xMDUgNDg0LjgyOSAxMTQuNDQzIDQ3Ni44ODMgMTA4LjU3IDQ3My43MDciIHN0cm9rZS13aWR0aD0iMTEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlPSIjQkJDNkU2Ii8+CjxwYXRoIGQ9Ik0zMTMuMDA3IDQ3Ni4wNkMzMTIuNTYgNDc3LjU0MiAzMTIuOTU3IDQ4My42MDEgMzE2LjIxOCA0ODcuOEMzMTcuNjYgNDg5LjY1NiAzMjEuODE1IDQ4OC40MDUgMzIyLjk5NiA0ODYuODA4QzMyNS43MTcgNDgzLjEyNCAzMjAuMTc2IDQ3Ni4zMjIgMzE3LjAxMiA0NzQuODM2QzMxNS44NzggNDc0LjQyMyAzMTQuNjY3IDQ3NC4yMTcgMzEzLjA0OCA0NzMuODgyIiBzdHJva2Utd2lkdGg9IjExIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZT0iI0JCQzZFNiIvPgo8cGF0aCBkPSJNMTU3LjM1MiA0MDcuMzQ3QzE0My44OTggNDA3LjM3NCAxMTAuOTY5IDQwOS44NTQgMTA0LjEzNCA0MTIuMzc2QzEwMi44OTEgNDEyLjg1NiAxMDEuNzIgNDEzLjQwNiAxMDAuMDU0IDQxNC4yMDRDOTguMzg4IDQxNS4wMDIgOTYuMjYzMiA0MTYuMDI5IDkyLjM1NDIgNDE4LjQxOCIgc3Ryb2tlLXdpZHRoPSIxMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2U9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yNjMuNDIzIDQwNi42MTNDMjc3Ljc3NyA0MDYuNDM2IDMwOS45OTIgNDA2Ljc1OCAzMTcuMTcyIDQwOS4zOTNDMzE4Ljg3NCA0MTAuMDE4IDMyMC4xMDUgNDEwLjYzOSAzMTkuNDYxIDQxMC4xODJDMzEwLjg5NSA0MDQuMSAyNzguODczIDQwMy4wNzQgMjY0LjE3NyA0MDMuNzNDMjQ0Ljc3MiA0MDQuNTk3IDMxMC4xMjIgMzk0LjUxNiAzMTguNjMgMzk0Ljg3NUMzMjAuNDU5IDM5NC45NTIgMzIxLjEzOSAzOTYuNDg5IDMyMS44NDkgMzk4LjI2NUMzMjIuNTU4IDQwMC4wNDEgMzIzLjE5MyA0MDIuNDg2IDMyMi45MTcgNDAzLjczNkMzMjIuNjQxIDQwNC45ODcgMzIxLjQzMyA0MDQuOTcgMzIwLjI3MiA0MDQuNTVDMzE3Ljg2NCA0MDMuNjc5IDMxNS42OTEgNDAxLjczMSAzMTIuOTkgNDAwLjY1NUMzMTEuNTg2IDQwMC4wOTYgMzA5Ljg0OSA0MDAuMzYyIDMwOS40MiA0MDAuOTIyQzMxMS44MSA0MDQuMTc5IDMxNy45NTMgNDA4LjE4NyAzMjMuNTE4IDQxMC4zMzFDMzI0LjIyNSA0MDkuOTQ0IDMyNC4xOTMgNDA4LjY0MiAzMjIuNTgzIDQwNS4zODQiIHN0cm9rZS13aWR0aD0iMTEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlPSIjMUYxRjI5Ii8+CjxwYXRoIGQ9Ik0xNTUuMjc1IDQwNy43NDJDMTQyLjA1NyA0MDcuNzQyIDExMS45MzEgNDA4LjExMSAxMDEuOTk2IDQxMS42NDlDOTguNjQxMiA0MTIuODQ0IDk2Ljg2NDYgNDE0Ljk2NiA5NS4wMTQxIDQxNi4xMjlDOTQuMTM5MyA0MTYuNjc5IDkyLjc4MDcgNDE1LjM3OSA5Mi4wNzUzIDQxNC4yM0M5MC42NiA0MTEuOTIzIDkxLjAyODkgNDA4Ljc0NyA5MS4zMTEyIDQwNi4wMTZDOTEuNDQ0NCA0MDQuNzI3IDkyLjE1NzkgNDAzLjczMyA5My4wNDczIDQwMi45NzlDOTQuODg4IDQwMS40MTggMTAxLjg4MiAzOTkuOTg1IDExNi4zNzcgMzk3Ljc5NkMxMzcuNDM1IDM5NC42MTYgMTUxLjUxMiAzOTYuMzI4IDE1My45NCAzOTYuOTA5QzE1Ni4zMzEgMzk3LjQ4MSAxNTguMzkgMzk4LjkxIDE1OS45MjcgNDAwLjc0QzE2MC42OSA0MDEuNjUgMTYwLjc0MyA0MDIuOTkzIDE2MC4xODUgNDAzLjg5NUMxNTguOTI5IDQwNS45MjQgMTM4Ljc5OCA0MDUuOTg3IDExMC41MzQgNDA2LjM5MUM5OC42NjEzIDQwNi41NjEgOTUuNjkwNCA0MDguMjk5IDk0LjY5MDUgNDA4LjgxNEMxMDMuMjA4IDQwNS42NjEgMTE0LjgxOCA0MDEuMjA0IDEyMC4wNSA0MDAuMzg0QzEyMi44MjMgNDAwLjA4NSAxMjUuODM0IDQwMC4wMjMgMTI4LjkzNyAzOTkuOTU5IiBzdHJva2Utd2lkdGg9IjExIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZT0iIzFGMUYyOSIvPgo8cGF0aCBkPSJNMTk5IDQxMy42MTdDMjExLjUgNDEzLjYxNyAyMjkuNDQ1IDQxMy44ODUgMjQxIDQxNi4xOTVDMjQ2IDQxNy4xOTUgMjU0Ljg3NyA0MzUuNjYgMjQ2Ljg4NyA0NDUuMjEyQzIzMy41OSA0NjEuMTA3IDE3NC4xNzYgNDU0LjgxNCAxNzQuMTc3IDQyMi4xNDZDMTc0LjE3NyA0MTYuNjk2IDE4Mi42ODcgNDEzLjYxNyAxOTkgNDEzLjYxN1oiIGZpbGw9IiMxRjFGMjkiIHN0cm9rZS13aWR0aD0iMTEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlPSIjMUYxRjI5Ii8+CjxwYXRoIGQ9Ik0xNjAuODMxIDQ3NS41NTJDMTYxLjg4NSA0NzYuNTQ1IDE2Ny4xMzcgNDgwLjc1IDE3Ni45MzEgNDg0LjI0NkMxODIuMDc3IDQ4Ni4wODMgMTkxLjUzOCA0ODYuOTYyIDIwMS40MDQgNDg3LjgzNEMyMTEuMjcgNDg4LjcwNSAyMjEuNDY0IDQ4OC44MDQgMjI4LjczNCA0ODguNTcyQzI0MC4wNjEgNDg4LjIxIDI0NS4zMDQgNDg2Ljg0OCAyNDguNTg3IDQ4NS4zOEMyNTMuOTY5IDQ4Mi4zNTcgMjU3Ljk1IDQ3OS44NTkgMjU5LjE4MyA0NzguOTA1QzI1OS43NCA0NzguNDk2IDI2MC4xNTYgNDc4LjIzNyAyNjEuMTU2IDQ3Ny43MzUiIHN0cm9rZS13aWR0aD0iMTEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlPSIjMUYxRjI5Ii8+Cjwvc3ZnPg=="};
+// Content for «Волчья тропа» (Stray Kids edition): 5 idioms about the wolf × 3 sentences. Level B1 maximum.
+// {{ }} marks the idiom inside an English sentence. Glosses are looked up per word:
+// variant.o (this sentence only) -> idiom.parts (words inside the idiom) -> DICT.
+// idiom.short is the short meaning shown on the falling cards of the "Лови значение" mode.
+
+const IDIOMS = [
+  {
+    id: 'sheep',
+    title: `a wolf in sheep's clothing`,
+    gist: `«волк в овечьей шкуре»: с виду безобидный, а на деле нет`,
+    short: `только с виду безобидный`,
+    meaning: `«Волк в овечьей шкуре»: тот (или то), кто выглядит безобидно или хорошо, но на деле нет.`,
+    tags: [`волк`],
+    parts: {
+      a: `артикль «один, какой-то»`,
+      wolf: `волк`,
+      in: `в`,
+      "sheep's": `овечьей (от sheep — овца)`,
+      clothing: `одежда (в идиоме — «шкура»)`
+    },
+    variants: [
+      {
+        ctx: `Мафия в SKZ Code`,
+        en: `Stray Kids played the Mafia game in SKZ Code. One player acts like a friend, but that player is {{a wolf in sheep's clothing}}.`,
+        ru: `Stray Kids играли в «Мафию» в SKZ Code. Один игрок ведёт себя как друг, но этот игрок — волк в овечьей шкуре.`,
+        form: `Схема: that player is a wolf in sheep's clothing — об игроке`,
+        o: {
+          acts: `ведёт себя (от act)`,
+          like: `как (acts like a friend — «ведёт себя как друг»)`,
+          one: `один (из игроков)`
+        }
+      },
+      {
+        ctx: `Игра с телефонами`,
+        en: `In one game, Han took some phones in secret. He acted friendly, but he was {{a wolf in sheep's clothing}}.`,
+        ru: `В одной игре Хан тайно забрал несколько телефонов. Он вёл себя дружелюбно, но был волком в овечьей шкуре.`,
+        form: `Прошедшее время: he was a wolf in sheep's clothing`,
+        o: {
+          took: `взял, забрал (от take)`,
+          some: `несколько`,
+          in: `в (in secret — «тайно, в секрете»)`,
+          acted: `вёл себя (от act)`,
+          han: `Хан (участник группы)`
+        }
+      },
+      {
+        ctx: `О покупке`,
+        en: `The cheap lightstick looked good, but it was {{a wolf in sheep's clothing}}. It broke after one day.`,
+        ru: `Дешёвый лайтстик выглядел хорошо, но оказался волком в овечьей шкуре. Он сломался через день.`,
+        form: `Схема: it was a wolf in sheep's clothing — о вещи`,
+        o: {
+          after: `через, спустя (after one day — «через день»)`
+        }
+      }
+    ]
+  },
+  {
+    id: 'cry',
+    title: `cry wolf`,
+    gist: `«поднять ложную тревогу»`,
+    short: `поднять ложную тревогу`,
+    meaning: `«Поднять ложную тревогу»: крикнуть об опасности, когда её нет. Если делать так часто, тебе перестанут верить.`,
+    tags: [`волк`],
+    parts: {
+      crying: `кричит, кричал(а) (от cry; в идиоме cry wolf — поднимать тревогу)`,
+      cried: `поднял(а) тревогу (от cry wolf)`,
+      wolf: `волк («Волки!» — крик тревоги)`
+    },
+    variants: [
+      {
+        ctx: `Подсказки к миссии`,
+        en: `Changbin kept {{crying wolf}} about losing his mission clues to trick the other members, so when someone actually stole them later, nobody came to help him.`,
+        ru: `Чанбин постоянно поднимал ложную тревогу, что потерял подсказки к миссии, чтобы обмануть остальных участников. Поэтому, когда позже кто-то действительно украл их, никто не пришёл ему на помощь.`,
+        form: `kept + -ing: kept crying wolf — «всё время поднимал ложную тревогу»`,
+        o: {
+          changbin: `Чанбин (участник группы)`,
+          kept: `продолжал(а) (от keep; kept + -ing — «всё время делал»)`,
+          losing: `терять, потерять (от lose)`,
+          his: `его`,
+          mission: `миссия, задание`,
+          clues: `подсказки`,
+          trick: `обмануть`,
+          other: `другие, остальные`,
+          members: `участники (от member)`,
+          so: `поэтому`,
+          someone: `кто-то`,
+          actually: `на самом деле, действительно`,
+          stole: `украл(а) (от steal)`,
+          them: `их`,
+          later: `позже`,
+          nobody: `никто`,
+          came: `пришёл, пришли (от come)`,
+          help: `помощь, помочь`,
+          him: `ему`
+        }
+      },
+      {
+        ctx: `Паук в Австралии`,
+        en: `In Australia, Han {{cried wolf}} about a spider. It was a toy, and everyone laughed.`,
+        ru: `В Австралии Хан поднял ложную тревогу из-за паука. Паук был игрушечный, и все смеялись.`,
+        form: `Прошедшее время: cried wolf about … — «поднял тревогу из-за …»`,
+        o: {
+          about: `из-за, по поводу`,
+          han: `Хан (участник группы)`
+        }
+      },
+      {
+        ctx: `О друге`,
+        en: `My friend {{cried wolf}}: "New Stray Kids song!" It was an old song, but we sang it together.`,
+        ru: `Мой друг поднял ложную тревогу: «Новая песня Stray Kids!» Это была старая песня, но мы спели её вместе.`,
+        form: `Прошедшее время: cried wolf — и что именно он кричал`,
+        o: {
+          sang: `пели, спели (от sing)`
+        }
+      }
+    ]
+  },
+  {
+    id: 'lone',
+    title: `a lone wolf`,
+    gist: `«волк-одиночка»: тот, кто один`,
+    short: `волк-одиночка`,
+    meaning: `«Волк-одиночка»: тот, кто один: по своему выбору или потому, что так вышло.`,
+    tags: [`волк`],
+    parts: {
+      a: `артикль «один, какой-то»`,
+      lone: `одинокий, одиночка`,
+      wolf: `волк`,
+      wolves: `волки (во множественном числе)`
+    },
+    variants: [
+      {
+        ctx: `О группе`,
+        en: `Stray Kids are not {{lone wolves}}. They are like a family.`,
+        ru: `Stray Kids — не волки-одиночки. Они как семья.`,
+        form: `Множественное число: lone wolves — не «волк», а «волки»`,
+        o: {
+          like: `как`
+        }
+      },
+      {
+        ctx: `Бэнг Чан`,
+        en: `Bang Chan used to feel like {{a lone wolf}} at JYP. Then Stray Kids debuted, and now he leads a team.`,
+        ru: `Бэнг Чан раньше чувствовал себя одиноким волком в JYP. Потом дебютировали Stray Kids, и теперь он ведёт команду.`,
+        form: `Схема: feel like a lone wolf — «чувствовать себя одиночкой»; used to feel — «раньше чувствовал»`,
+        o: {
+          bang: `Бэнг (имя участника)`,
+          chan: `Чан (имя участника, лидер группы)`,
+          used: `раньше (used to — «раньше делал»)`,
+          to: `(used to) — «раньше»`,
+          feel: `чувствовать`,
+          like: `как; (feel like) — «чувствовать себя как»`,
+          then: `потом, тогда`,
+          debuted: `дебютировали (от debut)`,
+          leads: `возглавляет, ведёт (от lead)`,
+          jyp: `JYP (агентство группы)`
+        }
+      },
+      {
+        ctx: `О себе`,
+        en: `I was {{a lone wolf}} at my old school. Now I have many friends in the STAY chat.`,
+        ru: `В старой школе я был(а) волком-одиночкой. Теперь у меня много друзей в чате STAY.`,
+        form: `Прошедшее время: was a lone wolf — «раньше»`,
+        o: {
+          stay: `STAY (так называют фанатов Stray Kids)`
+        }
+      }
+    ]
+  },
+  {
+    id: 'throw',
+    title: `throw someone to the wolves`,
+    gist: `«бросить на съедение волкам»: оставить одного в беде`,
+    short: `бросить одного в беде`,
+    meaning: `«Бросить на съедение волкам»: оставить человека одного в трудной ситуации, без помощи.`,
+    tags: [`волк`],
+    parts: {
+      thrown: `брошенный (от throw)`,
+      threw: `бросил(а) (от throw)`,
+      throw: `бросать`,
+      to: `к, на`,
+      the: `артикль «этот, тот»`,
+      wolves: `волки`
+    },
+    variants: [
+      {
+        ctx: `Высота`,
+        en: `Lee Know is afraid of heights, but he performed on a roof. He felt {{thrown to the wolves}}, but he did it!`,
+        ru: `Лино боится высоты, но выступил на крыше. Он чувствовал себя брошенным на съедение волкам, но справился!`,
+        form: `Страдательная форма: felt thrown to the wolves — «чувствовал себя брошенным»`,
+        o: {
+          lee: `Ли (Lee Know — Ли Ноу, Лино)`,
+          know: `Ноу (Lee Know — Ли Ноу, Лино, участник группы)`,
+          afraid: `бояться (afraid of — «бояться чего»)`,
+          of: `(afraid of) — «бояться чего-то»`,
+          heights: `высота (от height)`,
+          performed: `выступал(а) (от perform)`,
+          roof: `крыша`,
+          felt: `чувствовал себя (от feel)`,
+          did: `сделал(а) (от do)`
+        }
+      },
+      {
+        ctx: `Вопрос про песню`,
+        en: `Someone asked who wrote "Red Lights". Bang Chan and Hyunjin {{threw}} each other {{to the wolves}}. Each one passed the question to the other.`,
+        ru: `Кто-то спросил, кто написал «Red Lights». Бэнг Чан и Хенджин бросили друг друга на съедение волкам: каждый передал вопрос другому.`,
+        form: `Прошедшее время: threw each other to the wolves — «бросили друг друга»`,
+        o: {
+          someone: `кто-то`,
+          who: `кто`,
+          wrote: `написал(а) (от write)`,
+          red: `красный (Red Lights — название песни)`,
+          lights: `огни (Red Lights — «Красные огни», песня)`,
+          bang: `Бэнг (имя участника)`,
+          chan: `Чан (имя участника, лидер группы)`,
+          hyunjin: `Хенджин (участник группы)`,
+          each: `каждый (each other — «друг друга»)`,
+          other: `другой (each other — «друг друга»)`,
+          one: `один (each one — «каждый»)`,
+          passed: `передал(а) (от pass)`,
+          question: `вопрос`
+        }
+      },
+      {
+        ctx: `В танцевальной студии`,
+        en: `The coach didn't {{throw}} the new girl {{to the wolves}}. He gave her time to learn the dance.`,
+        ru: `Тренер не бросил новую девочку на съедение волкам. Он дал ей время выучить танец.`,
+        form: `Отрицание в прошедшем: didn't throw … to the wolves`,
+        o: {
+          her: `ей`,
+          dance: `танец`,
+          girl: `девочка, девушка`
+        }
+      }
+    ]
+  },
+  {
+    id: 'down',
+    title: `wolf down`,
+    gist: `«быстро и жадно съесть»`,
+    short: `быстро и жадно съесть`,
+    meaning: `«Быстро и жадно съесть»: съесть что-то очень быстро и с аппетитом. Обычно так говорят про еду.`,
+    tags: [`волк`, `фразовый глагол`],
+    parts: {
+      wolfed: `быстро проглотил(а) (от wolf down)`,
+      wolfs: `быстро проглатывает (от wolf down)`,
+      wolf: `быстро съесть (глагол wolf down)`,
+      down: `вниз (в wolf down — «проглотить»)`
+    },
+    variants: [
+      {
+        ctx: `Шеф-повар`,
+        en: `A chef cooked a lot of food for Stray Kids. They {{wolfed}} it all {{down}}!`,
+        ru: `Шеф-повар приготовила много еды для Stray Kids. Они быстро съели всё!`,
+        form: `Слово down можно поставить в конец: wolfed it all down`,
+        o: {
+          chef: `шеф-повар`,
+          cooked: `приготовил(а) (от cook)`,
+          all: `всё`,
+          lot: `много (a lot of — «много»)`,
+          of: `(a lot of) — «много»`
+        }
+      },
+      {
+        ctx: `Кофе за работой`,
+        en: `When Han works on music, he {{wolfs down}} a few cups of americano.`,
+        ru: `Когда Хан работает над музыкой, он залпом выпивает несколько чашек американо.`,
+        form: `Настоящее время: he wolfs down — у he добавляется -s`,
+        note: `Обычно «wolf down» говорят про еду. Про кофе — это шутка.`,
+        o: {
+          han: `Хан (участник группы)`,
+          works: `работает (от work)`,
+          on: `над (works on music — «работает над музыкой»)`,
+          music: `музыка`,
+          few: `несколько (a few — «несколько»)`,
+          cups: `чашки (от cup)`,
+          americano: `американо (чёрный кофе)`
+        }
+      },
+      {
+        ctx: `Любимый десерт`,
+        en: `Lee Know loves pudding. He can {{wolf down}} several puddings in a row.`,
+        ru: `Лино любит пудинг. Он может быстро съесть несколько пудингов подряд.`,
+        form: `После can глагол без окончания: can wolf down`,
+        o: {
+          lee: `Ли (Lee Know — Ли Ноу, Лино)`,
+          know: `Ноу (Lee Know — Ли Ноу, Лино, участник группы)`,
+          loves: `любит (от love)`,
+          pudding: `пудинг (десерт)`,
+          puddings: `пудинги (от pudding)`,
+          several: `несколько`,
+          in: `в (in a row — «подряд»)`,
+          row: `ряд (in a row — «подряд»)`,
+          can: `мочь, уметь`
+        }
+      }
+    ]
+  }
+];
+
+const DICT = {
+  a: `артикль «один, какой-то»`,
+  about: `о, про; из-за`,
+  after: `после; через`,
+  an: `артикль «один, какой-то»`,
+  and: `и`,
+  are: `есть, являются (от be)`,
+  asked: `спросил(а), попросил(а) (от ask)`,
+  at: `в, на (о месте)`,
+  australia: `Австралия`,
+  broke: `сломался (от break)`,
+  but: `но`,
+  chat: `чат`,
+  cheap: `дешёвый`,
+  coach: `тренер`,
+  code: `код`,
+  day: `день`,
+  "didn't": `не (did not)`,
+  "don't": `не (do not)`,
+  everyone: `все, каждый`,
+  family: `семья`,
+  food: `еда`,
+  for: `для`,
+  friend: `друг`,
+  friendly: `дружелюбный`,
+  friends: `друзья`,
+  game: `игра`,
+  gave: `дал(а) (от give)`,
+  good: `хороший; хорошо`,
+  have: `иметь; у меня есть`,
+  he: `он`,
+  her: `её; ей`,
+  i: `я`,
+  in: `в`,
+  is: `есть, является (от be)`,
+  it: `это; он, она, оно`,
+  kids: `дети (Stray Kids — название группы)`,
+  laughed: `смеялись (от laugh)`,
+  learn: `учиться, выучить`,
+  lightstick: `лайтстик (светящаяся палочка для концертов)`,
+  looked: `выглядел(а) (от look)`,
+  mafia: `«Мафия» (командная игра)`,
+  many: `много`,
+  my: `мой, моя`,
+  new: `новый`,
+  not: `не`,
+  now: `теперь, сейчас`,
+  of: `из, о; (a lot of) — много`,
+  old: `старый; прежний`,
+  on: `на, в`,
+  one: `один`,
+  phones: `телефоны`,
+  played: `играли (от play)`,
+  player: `игрок`,
+  school: `школа`,
+  secret: `тайна; (in secret) — тайно`,
+  skz: `SKZ (сокращение от Stray Kids)`,
+  song: `песня`,
+  spider: `паук`,
+  stray: `бездомный, заблудший (Stray Kids — название группы)`,
+  team: `команда`,
+  that: `что; тот`,
+  the: `артикль «этот, тот»`,
+  then: `потом, тогда`,
+  they: `они`,
+  time: `время`,
+  to: `к, чтобы`,
+  together: `вместе`,
+  toy: `игрушка; игрушечный`,
+  was: `был(а) (от be)`,
+  we: `мы`,
+  when: `когда`,
+  your: `твой, ваш`
+};
+
+// Split an English sentence into text and word tokens; words inside {{ }} are flagged as idiom.
+function parseEn(en) {
+  const out = [];
+  let inIdiom = false;
+  const parts = en.split(/(\{\{|\}\})/);
+  for (const part of parts) {
+    if (part === '{{') { inIdiom = true; continue; }
+    if (part === '}}') { inIdiom = false; continue; }
+    const re = /(\s+)|(\S+)/g;
+    let m;
+    while ((m = re.exec(part))) {
+      if (m[1]) { out.push({ t: 'text', text: m[1], idiom: inIdiom }); continue; }
+      const chunk = m[2];
+      const mm = chunk.match(/^([^\p{L}\p{N}]*)([\p{L}\p{N}][\p{L}\p{N}'’]*)(.*)$/u);
+      if (!mm) { out.push({ t: 'text', text: chunk }); continue; }
+      if (mm[1]) out.push({ t: 'text', text: mm[1] });
+      out.push({ t: 'word', text: mm[2], key: mm[2].toLowerCase().replace(/’/g, "'"), idiom: inIdiom });
+      if (mm[3]) out.push({ t: 'text', text: mm[3] });
+    }
+  }
+  return out;
+}
+
+function gloss(idiom, variant, tok) {
+  const k = tok.key;
+  if (variant.o && variant.o[k]) return variant.o[k];
+  if (tok.idiom && idiom.parts && idiom.parts[k]) return idiom.parts[k];
+  return DICT[k] || null;
+}
+
+if (typeof module !== 'undefined') module.exports = { IDIOMS, DICT, parseEn, gloss };
+
+(function () {
+  'use strict';
+  const T = window.__WOLF_TEST__ || null;
+  const DEFAULT_SECONDS = 30;                 // enough to look up unfamiliar words by tapping them
+  const TIME_MS = (T && T.timeMs) || DEFAULT_SECONDS * 1000;
+  const RING = 2 * Math.PI * 28;              // circumference of the dial ring (r = 28)
+  const LIVES = 3;
+  const PER_IDIOM = 2;                       // cards per idiom in one round
+  const SAVE_KEY = 'wolf-trail-v1';
+  const MODE_NAME = { choose: 'Выбери идиому', build: 'Собери фразу', catch: 'Лови значение' };
+
+  /* ---------- optional settings, Telegram, character ---------- */
+  const CFG = window.WOLF_CONFIG || {};
+  const HEROES = (typeof HERO !== 'undefined' && HERO) || {};
+  const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  // Outside Telegram the script can still load; then initData is empty and platform is "unknown".
+  const inTg = !!(tg && (tg.initData || (tg.platform && tg.platform !== 'unknown')));
+  function applyTgTheme() {
+    try { if (tg && tg.colorScheme) document.documentElement.setAttribute('data-theme', tg.colorScheme === 'dark' ? 'dark' : 'light'); } catch (e) { /* ignore */ }
+  }
+  function initTelegram() {
+    if (!inTg) return;
+    try { tg.ready(); } catch (e) { /* ignore */ }
+    try { tg.expand(); } catch (e) { /* ignore */ }
+    applyTgTheme();
+    try { if (tg.onEvent) tg.onEvent('themeChanged', applyTgTheme); } catch (e) { /* ignore */ }
+  }
+  function lockSwipes(on) {
+    if (!inTg) return;
+    try {
+      if (tg.isVersionAtLeast && tg.isVersionAtLeast('7.7')) { if (on) tg.disableVerticalSwipes(); else tg.enableVerticalSwipes(); }
+    } catch (e) { /* ignore */ }
+  }
+  function haptic(kind) {
+    if (!inTg) return;
+    try {
+      const h = tg.HapticFeedback;
+      if (!h) return;
+      if (kind === 'ok') h.notificationOccurred('success');
+      else if (kind === 'bad') h.notificationOccurred('error');
+      else h.selectionChanged();
+    } catch (e) { /* ignore */ }
+  }
+  function openLink(url) {
+    if (inTg && tg.openTelegramLink && /^https:\/\/t\.me\//.test(url)) {
+      try { tg.openTelegramLink(url); return; } catch (e) { /* fall through */ }
+    }
+    window.open(url, '_blank', 'noopener');
+  }
+  function paintHeroes() {
+    for (const id of ['hero-start', 'hero-end', 'c-hero']) {
+      const img = document.getElementById(id);
+      if (img && HEROES.neutral) img.setAttribute('src', HEROES.neutral);
+    }
+  }
+
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, cls, text) => {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  };
+  const rnd = (n) => Math.floor(Math.random() * n);
+  const shuffle = (a) => {
+    a = a.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  };
+  const reduceMotion = () =>
+    typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- storage (per-viewer convenience; works without it) ---------- */
+  const fresh = () => ({ noTimer: false, speed: 'calm', best: { choose: 0, build: 0, catch: 0 }, prog: {} });
+  function loadStore() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (s && typeof s === 'object') {
+          const f = fresh();
+          return {
+            noTimer: !!s.noTimer,
+            speed: s.speed === 'fast' ? 'fast' : 'calm',
+            best: Object.assign(f.best, s.best || {}),
+            prog: s.prog && typeof s.prog === 'object' ? s.prog : {}
+          };
+        }
+      }
+    } catch (e) { /* storage unavailable */ }
+    return fresh();
+  }
+  function saveStore() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(store)); } catch (e) { /* ignore */ } }
+  let store = loadStore();
+  const getCount = (id, vi) => ((store.prog[id] || [])[vi]) | 0;
+  function setCount(id, vi, n) {
+    const a = store.prog[id] = (store.prog[id] || [0, 0, 0]).slice();
+    a[vi] = Math.max(0, Math.min(9, n));
+  }
+  const mastered = (id) => [0, 1, 2].filter((vi) => getCount(id, vi) >= 1).length;
+
+  /* ---------- sentence parts: plain tokens and idiom runs ---------- */
+  function partsOf(variant) {
+    if (variant._parts) return variant._parts;
+    const parts = [];
+    let run = null;
+    const flush = () => { if (run) { parts.push(run); run = null; } };
+    for (const t of parseEn(variant.en)) {
+      if (t.idiom) { if (!run) run = { kind: 'idiom', toks: [] }; run.toks.push(t); }
+      else { flush(); parts.push({ kind: 'tok', tok: t }); }
+    }
+    flush();
+    for (const p of parts) {
+      if (p.kind !== 'idiom') continue;
+      p.words = p.toks.filter((t) => t.t === 'word');
+      p.text = p.toks.map((t) => t.text).join('');
+    }
+    variant._parts = parts;
+    return parts;
+  }
+  const runsOf = (variant) => partsOf(variant).filter((p) => p.kind === 'idiom');
+
+  /* ---------- round state ---------- */
+  let S = null;
+
+  function pickVariants(idiom, n) {
+    return shuffle([0, 1, 2]).sort((a, b) => getCount(idiom.id, a) - getCount(idiom.id, b)).slice(0, n);
+  }
+  function spreadOut(a) {
+    for (let i = 1; i < a.length; i++) {
+      if (a[i].idiom !== a[i - 1].idiom) continue;
+      const k = a.findIndex((c, idx) => idx > i && c.idiom !== a[i - 1].idiom);
+      if (k > -1) [a[i], a[k]] = [a[k], a[i]];
+    }
+    return a;
+  }
+  function buildQueue() {
+    const cards = [];
+    for (const idiom of IDIOMS) for (const vi of pickVariants(idiom, PER_IDIOM)) cards.push({ idiom, vi, base: true });
+    return spreadOut(shuffle(cards));
+  }
+  function scheduleRetry(card) {
+    const others = [0, 1, 2].filter((vi) => vi !== card.vi);
+    const vi = shuffle(others).sort((a, b) => getCount(card.idiom.id, a) - getCount(card.idiom.id, b))[0];
+    const at = Math.min(S.queue.length, S.idx + 3 + rnd(2));   // two or three cards later
+    S.queue.splice(at, 0, { idiom: card.idiom, vi, base: false });
+  }
+
+  /* ---------- screens ---------- */
+  function show(name) {
+    for (const id of ['s-start', 's-play', 's-catch', 's-end']) $(id).hidden = id !== 's-' + name;
+    document.body.classList.toggle('catching', name === 'catch');
+    try { window.scrollTo(0, 0); } catch (e) { /* ignore */ }
+  }
+  const stars = (n) => '★'.repeat(n) + '☆'.repeat(3 - n);
+
+  function renderStart() {
+    const list = $('idiom-list');
+    list.replaceChildren();
+    for (const idm of IDIOMS) {
+      const li = el('li', 'irow');
+      const left = el('div', 'irow-text');
+      const t = el('span', 'irow-title', idm.title);
+      t.lang = 'en';
+      left.append(t, el('span', 'irow-gist', idm.gist));
+      const m = mastered(idm.id);
+      const pips = el('span', 'pips');
+      pips.setAttribute('role', 'img');
+      pips.setAttribute('aria-label', 'Освоено ситуаций: ' + m + ' из 3');
+      for (let i = 0; i < 3; i++) pips.append(el('span', 'pip' + (i < m ? ' on' : '')));
+      li.append(left, pips);
+      list.append(li);
+    }
+    $('best').textContent = 'Лучший результат — Выбери идиому: ' + stars(store.best.choose) +
+      ' · Собери фразу: ' + stars(store.best.build) + ' · Лови значение: ' + stars(store.best.catch);
+    document.querySelectorAll('.seg').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.speed === store.speed)));
+    $('no-timer').setAttribute('aria-checked', String(store.noTimer));
+    resetBtn.textContent = 'Сбросить прогресс';
+    resetArmed = false;
+  }
+
+  /* ---------- play ---------- */
+  function startRound(mode) {
+    if (mode === 'catch') return startCatch();
+    S = {
+      mode, queue: buildQueue(), idx: 0, lives: LIVES, streak: 0, score: 0, clean: 0, mistakes: 0,
+      missed: new Map(), card: null, cs: null, timerId: null, remain: 0, last: 0
+    };
+    $('lives').hidden = mode !== 'choose';
+    $('mode-label').textContent = MODE_NAME[mode];
+    show('play');
+    showCard();
+  }
+
+  function updateHud() {
+    $('lives').textContent = '♥'.repeat(S.lives) + '♡'.repeat(LIVES - S.lives);
+    $('lives').setAttribute('aria-label', 'Жизней: ' + S.lives + ' из ' + LIVES);
+    $('streak').textContent = 'Серия ' + S.streak;
+    $('score').textContent = 'Очки ' + S.score;
+  }
+  function updateTrack() {
+    const pct = Math.round((S.idx / S.queue.length) * 100);
+    $('track-fill').style.width = pct + '%';
+    $('paw').style.left = pct + '%';
+    $('track').setAttribute('aria-valuenow', String(pct));
+    $('count').textContent = 'Карточка ' + (S.idx + 1) + ' из ' + S.queue.length + (S.card.base ? '' : ' · повтор');
+  }
+
+  function showCard() {
+    const card = S.card = S.queue[S.idx];
+    const v = card.idiom.variants[card.vi];
+    const cs = S.cs = { answered: false, hinted: false, placed: [], slots: [], tiles: [], needed: [], opts: [] };
+
+    updateHud();
+    updateTrack();
+    $('fb').hidden = true;
+    $('hint').hidden = false;
+    $('hint-ru').hidden = true;
+    $('hint-ru').textContent = v.ru;
+    $('peek').textContent = 'Нажмите на слово — появится перевод';
+    $('peek').classList.add('idle');
+    $('q-label').textContent = (S.mode === 'choose' ? 'Вставь идиому в пропуск' : 'Собери идиому из слов') +
+      (card.base ? '' : ' · повтор');
+
+    drawSentence();
+    if (S.mode === 'choose') buildOptions(); else buildTiles();
+    startTimer();
+  }
+
+  function wordBtn(tok, isIdiom) {
+    const b = el('button', 'w' + (isIdiom ? ' idiom' : ''), tok.text);
+    b.type = 'button';
+    b.addEventListener('click', () => peekWord(tok));
+    return b;
+  }
+  function peekWord(tok) {
+    const card = S.card;
+    const g = gloss(card.idiom, card.idiom.variants[card.vi], tok);
+    const p = $(S.mode === 'catch' ? 'c-peek' : 'peek');
+    p.replaceChildren(el('b', null, tok.text), document.createTextNode(' — ' + (g || 'нет в мини-словаре')));
+    p.classList.remove('idle');
+  }
+
+  function drawSentence() {
+    const card = S.card, cs = S.cs, v = card.idiom.variants[card.vi];
+    const box = $('sentence');
+    box.replaceChildren();
+    cs.slots = []; cs.needed = [];
+    for (const part of partsOf(v)) {
+      if (part.kind === 'tok') {
+        if (part.tok.t === 'text') box.append(document.createTextNode(part.tok.text));
+        else box.append(wordBtn(part.tok, false));
+      } else if (S.mode === 'choose') {
+        if (cs.answered) {
+          const run = el('span', 'run');
+          for (const t of part.toks) run.append(t.t === 'word' ? wordBtn(t, true) : el('span', 'gap idiom', t.text));
+          box.append(run);
+        } else {
+          const blank = el('span', 'blank');
+          blank.setAttribute('aria-label', 'пропуск');
+          box.append(blank);
+        }
+      } else {
+        const group = el('span', 'slotgroup');
+        for (const w of part.words) {
+          const i = cs.slots.length;
+          const s = el('button', 'slot');
+          s.type = 'button';
+          s.addEventListener('click', () => removeAt(i));
+          cs.slots.push(s);
+          cs.needed.push(w);
+          group.append(s);
+        }
+        box.append(group);
+      }
+    }
+    if (S.mode === 'build') updateSlots();
+  }
+
+  /* ----- mode 1: choose ----- */
+  function buildOptions() {
+    const card = S.card, cs = S.cs;
+    const picks = shuffle([card.idiom, ...shuffle(IDIOMS.filter((x) => x !== card.idiom)).slice(0, 2)]);
+    const wrap = el('div', 'options');
+    picks.forEach((idm, i) => {
+      const b = el('button', 'opt');
+      b.type = 'button';
+      const t = el('span', 'opt-text', idm.title);
+      t.lang = 'en';
+      b.append(el('span', 'opt-key', String(i + 1)), t, el('span', 'opt-mark'));
+      b._idiom = idm;
+      b.addEventListener('click', () => answerChoose(b));
+      cs.opts.push(b);
+      wrap.append(b);
+    });
+    $('answer').replaceChildren(wrap);
+  }
+  function answerChoose(btn) {
+    const cs = S.cs;
+    if (cs.answered) return;
+    const ok = btn._idiom === S.card.idiom;
+    for (const b of cs.opts) {
+      b.disabled = true;
+      const right = b._idiom === S.card.idiom;
+      if (right) { b.classList.add('ok'); b.querySelector('.opt-mark').textContent = '✓'; }
+      else if (b === btn) { b.classList.add('bad'); b.querySelector('.opt-mark').textContent = '✕'; }
+      else b.classList.add('dim');
+    }
+    finishCard(ok, false);
+  }
+
+  /* ----- mode 2: build ----- */
+  function buildTiles() {
+    const card = S.card, cs = S.cs;
+    const seen = new Set(cs.needed.map((w) => w.key));
+    const same = new Map(), other = new Map();
+    for (const idm of IDIOMS) for (const v of idm.variants) for (const run of runsOf(v)) for (const w of run.words) {
+      if (seen.has(w.key)) continue;
+      const pool = idm === card.idiom ? same : other;
+      if (!pool.has(w.key)) pool.set(w.key, w);
+    }
+    const extra = [];
+    for (const w of shuffle([...same.values()]).slice(0, 2)) { extra.push(w); seen.add(w.key); }
+    for (const w of shuffle([...other.values()])) {
+      if (extra.length >= 3) break;
+      if (!seen.has(w.key)) { extra.push(w); seen.add(w.key); }
+    }
+    cs.tiles = shuffle([...cs.needed, ...extra]).map((w, id) => ({ id, text: w.text, key: w.key, el: null }));
+    const bank = el('div', 'bank');
+    for (const t of cs.tiles) {
+      const b = el('button', 'tile', t.text);
+      b.type = 'button';
+      b.lang = 'en';
+      b.addEventListener('click', () => place(t.id));
+      t.el = b;
+      bank.append(b);
+    }
+    const actions = el('div', 'actions');
+    const check = el('button', 'btn primary', 'Проверить');
+    check.type = 'button'; check.id = 'check'; check.disabled = true;
+    check.addEventListener('click', checkBuild);
+    const clear = el('button', 'link-btn', 'Очистить');
+    clear.type = 'button'; clear.id = 'clear';
+    clear.addEventListener('click', () => { if (!S.cs.answered) { S.cs.placed = []; updateSlots(); } });
+    actions.append(check, clear);
+    $('answer').replaceChildren(bank, actions);
+    updateSlots();
+  }
+  function place(id) {
+    const cs = S.cs;
+    if (cs.answered || cs.placed.includes(id) || cs.placed.length >= cs.slots.length) return;
+    cs.placed.push(id);
+    updateSlots();
+  }
+  function removeAt(i) {
+    const cs = S.cs;
+    if (cs.answered || i >= cs.placed.length) return;
+    cs.placed.splice(i, 1);
+    updateSlots();
+  }
+  function updateSlots() {
+    const cs = S.cs;
+    cs.slots.forEach((s, i) => {
+      const id = cs.placed[i];
+      s.textContent = id === undefined ? '' : cs.tiles[id].text;
+      s.classList.toggle('filled', id !== undefined);
+      s.setAttribute('aria-label', id === undefined ? 'Пустое место ' + (i + 1) : 'Место ' + (i + 1) + ': ' + cs.tiles[id].text + '. Нажмите, чтобы убрать');
+    });
+    for (const t of cs.tiles) t.el.classList.toggle('used', cs.placed.includes(t.id));
+    const check = $('check');
+    if (check) check.disabled = cs.placed.length !== cs.slots.length;
+  }
+  function checkBuild() {
+    const cs = S.cs;
+    if (cs.answered || cs.placed.length !== cs.slots.length) return;
+    let ok = true;
+    cs.slots.forEach((s, i) => {
+      const right = cs.tiles[cs.placed[i]].key === cs.needed[i].key;
+      if (!right) ok = false;
+      s.classList.add(right ? 'ok' : 'bad');
+      s.disabled = true;
+    });
+    for (const t of cs.tiles) t.el.disabled = true;
+    $('check').disabled = true;
+    $('clear').disabled = true;
+    finishCard(ok, false);
+  }
+
+  /* ---------- timer (choose mode only) ---------- */
+  function timerOn() { return S && S.mode === 'choose' && !store.noTimer; }
+  function stopTimer() { if (S && S.timerId) { clearInterval(S.timerId); S.timerId = null; } }
+  function updateTimerUi() {
+    const f = Math.max(0, S.remain / TIME_MS);
+    $('timer-ring').style.strokeDashoffset = (RING * (1 - f)).toFixed(2);
+    $('timer').classList.toggle('low', f < 0.3);
+    const s = Math.max(0, Math.ceil(S.remain / 1000));
+    const txt = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    if ($('timer-text').textContent !== txt) {
+      $('timer-text').textContent = txt;
+      $('timer').setAttribute('aria-label', 'Осталось секунд: ' + s);
+    }
+  }
+  function startTimer() {
+    stopTimer();
+    $('timer').hidden = !timerOn();
+    if (!timerOn()) return;
+    S.remain = TIME_MS;
+    updateTimerUi();
+    resumeTimer();
+  }
+  function resumeTimer() {
+    S.last = performance.now();
+    S.timerId = setInterval(() => {
+      const now = performance.now();
+      S.remain -= now - S.last;
+      S.last = now;
+      updateTimerUi();
+      if (S.remain <= 0) { stopTimer(); timeUp(); }
+    }, 100);
+  }
+  function timeUp() {
+    const cs = S.cs;
+    if (cs.answered) return;
+    for (const b of cs.opts) {
+      b.disabled = true;
+      if (b._idiom === S.card.idiom) { b.classList.add('ok'); b.querySelector('.opt-mark').textContent = '✓'; }
+      else b.classList.add('dim');
+    }
+    finishCard(false, true);
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (!S || $('s-play').hidden || !timerOn() || !S.cs || S.cs.answered) return;
+    if (document.hidden) stopTimer(); else if (!S.timerId) resumeTimer();
+  });
+
+  /* ---------- result of one card ---------- */
+  function finishCard(ok, timedOut) {
+    const cs = S.cs;
+    if (cs.answered) return;
+    cs.answered = true;
+    stopTimer();
+    const card = S.card, idiom = card.idiom, v = idiom.variants[card.vi];
+    const clean = ok && !cs.hinted;
+
+    if (ok) {
+      S.streak++;
+      S.score += cs.hinted ? 5 : 10 + 5 * Math.min(S.streak - 1, 4);
+      if (clean) setCount(idiom.id, card.vi, getCount(idiom.id, card.vi) + 1);
+    } else {
+      S.streak = 0;
+      S.mistakes++;
+      setCount(idiom.id, card.vi, 0);
+      if (!S.missed.has(idiom.id)) S.missed.set(idiom.id, card);
+      if (S.mode === 'choose') S.lives--;
+      if (S.mode === 'build' || S.lives > 0) scheduleRetry(card);
+    }
+    if (card.base && clean) S.clean++;
+    haptic(ok ? 'ok' : 'bad');
+    saveStore();
+    updateHud();
+
+    if (S.mode === 'choose') drawSentence();           // fill the gap with the idiom
+    $('hint').hidden = true;
+
+    const lastCard = (S.mode === 'choose' && S.lives <= 0) || S.idx >= S.queue.length - 1;
+    const fb = $('fb');
+    fb.className = 'fb ' + (ok ? 'ok' : 'bad');
+    $('fb-head').textContent = ok ? (clean ? '✓ Верно!' : '✓ Верно, но с подсказкой') : (timedOut ? '✕ Время вышло' : '✕ Не совсем');
+    const phrase = S.mode === 'build' && !ok ? runsOf(v).map((r) => r.text).join(' … ') : idiom.title;
+    const ans = $('fb-answer');
+    ans.replaceChildren(document.createTextNode(ok ? 'Идиома: ' : 'Правильно: '), el('strong', null, phrase));
+    ans.querySelector('strong').lang = 'en';
+    $('fb-ru').textContent = v.ru;
+    $('fb-meaning').textContent = idiom.meaning;
+    $('fb-form').textContent = 'Форма. ' + v.form;
+    const next = $('next');
+    next.textContent = lastCard ? 'Результат' : 'Дальше';
+    fb.hidden = false;
+    next.focus({ preventScroll: true });
+    if (typeof fb.scrollIntoView === 'function') fb.scrollIntoView({ block: 'nearest', behavior: reduceMotion() ? 'auto' : 'smooth' });
+  }
+
+  function next() {
+    if (!S || !S.cs.answered) return;
+    if (S.mode === 'choose' && S.lives <= 0) return endRound(false);
+    S.idx++;
+    if (S.idx >= S.queue.length) return endRound(true);
+    showCard();
+  }
+
+  /* ---------- end ---------- */
+  function staticSentence(v) {
+    const p = el('p', 'ex');
+    p.lang = 'en';
+    for (const t of parseEn(v.en)) {
+      if (t.idiom) p.append(el('span', 'hl', t.text));
+      else p.append(document.createTextNode(t.text));
+    }
+    return p;
+  }
+  function endRound(finished) {
+    stopTimer();
+    lockSwipes(false);
+    if (S.mode === 'catch') { hideCatchModal(); S.paused = false; }
+    const catching = S.mode === 'catch';
+    const base = IDIOMS.length * PER_IDIOM;
+    const n = !finished ? 0 : catching ? Math.max(1, S.lives) : (S.clean >= 9 ? 3 : S.clean >= 6 ? 2 : 1);
+    S.stars = n;
+    if (n > store.best[S.mode]) store.best[S.mode] = n;
+    saveStore();
+
+    $('end-eyebrow').textContent = MODE_NAME[S.mode];
+    $('end-title').textContent = finished ? 'Тропа пройдена!' : 'Тропа оборвалась';
+    $('end-stars').textContent = stars(n);
+    $('end-stars').setAttribute('aria-label', 'Звёзд: ' + n + ' из 3');
+    $('end-stats').textContent = catching
+      ? 'Поймано: ' + S.caught.size + ' из ' + CATCH_TOTAL + ' · Очки: ' + S.score + ' · Ошибок: ' + S.mistakes
+      : 'С первой попытки: ' + S.clean + ' из ' + base + ' · Очки: ' + S.score + ' · Ошибок: ' + S.mistakes;
+    const heroEnd = $('hero-end');
+    const heroSrc = (finished ? HEROES.happy : HEROES.sad) || HEROES.neutral;
+    if (heroEnd && heroSrc) heroEnd.setAttribute('src', heroSrc);
+
+    const box = $('end-review');
+    box.replaceChildren();
+    if (S.missed.size) {
+      box.append(el('h2', 'h-sm', 'Повторить'));
+      const ul = el('ul', 'review');
+      for (const card of S.missed.values()) {
+        const v = card.idiom.variants[card.vi];
+        const li = el('li');
+        const t = el('span', 'irow-title', card.idiom.title);
+        t.lang = 'en';
+        li.append(t, el('p', 'muted', card.idiom.meaning), staticSentence(v), el('p', 'muted', v.ru));
+        ul.append(li);
+      }
+      box.append(ul);
+    } else {
+      box.append(el('p', 'stats', catching
+        ? 'Ни одной ошибки. Можно попробовать режим «Быстрее» или другой режим.'
+        : 'Все идиомы получились с первой попытки. Можно играть в другом режиме.'));
+    }
+    // optional extra buttons from the settings block
+    document.querySelectorAll('.end-extra').forEach((b) => b.remove());
+    const actions = document.querySelector('.end-actions');
+    if (CFG.shareUrl) {
+      const b = el('button', 'btn end-extra', 'Отправить другу');
+      b.type = 'button';
+      b.addEventListener('click', () => openLink('https://t.me/share/url?url=' + encodeURIComponent(CFG.shareUrl) + '&text=' + encodeURIComponent(resultText())));
+      actions.append(b);
+    }
+    if (CFG.channelUrl) {
+      const b = el('button', 'btn end-extra', 'Открыть канал');
+      b.type = 'button';
+      b.addEventListener('click', () => openLink(CFG.channelUrl));
+      actions.append(b);
+    }
+    $('copy-box').hidden = true;
+    $('copy').textContent = 'Скопировать результат';
+    show('end');
+  }
+  function resultText() {
+    const base = IDIOMS.length * PER_IDIOM;
+    if (S.mode === 'catch') {
+      return 'Wolf trail · ' + MODE_NAME.catch + ': ' + stars(S.stars) + ' — поймано ' + S.caught.size + ' из ' + CATCH_TOTAL +
+        ' фраз, ' + S.score + ' очков';
+    }
+    return 'Wolf trail · ' + MODE_NAME[S.mode] + ': ' + stars(S.stars) + ' — ' + S.clean + ' из ' + base +
+      ' идиом с первой попытки, ' + S.score + ' очков';
+  }
+
+  /* ================= mode 3: «Лови значение» (falling answers) ================= */
+  const FALL = { calm: 11, fast: 7 };          // seconds from the top to the wolf: time to read and translate
+  const BOOST = 4;                             // "Быстрее" multiplier
+  const READY_S = 0.9;                         // pause before the cards start to fall
+  const LANDED_S = 0.65;                       // time to look at the result before the sheet opens
+  const CARD_H = 78, WOLF_ZONE = 66, FALLBACK_H = 360;
+  const CATCH_TOTAL = IDIOMS.length * 3;
+  const cCards = [0, 1, 2].map((i) => $('c-card-' + i));
+  const NO_LOOP = !!(T && T.noLoop);
+
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+  const escHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const hlHtml = (en) => escHtml(en).replace(/\{\{(.+?)\}\}/g, '<span class="hl">$1</span>');
+  const cardKey = (card) => card.idiom.id + ':' + card.vi;
+  const say = (text) => { $('c-live').textContent = text; };
+
+  function buildCatchQueue() {
+    const all = [];
+    for (const idiom of IDIOMS) for (let vi = 0; vi < 3; vi++) all.push({ idiom, vi, base: true });
+    let q = all;
+    for (let k = 0; k < 80; k++) {
+      q = shuffle(all);
+      if (q.every((c, i) => i === 0 || c.idiom !== q[i - 1].idiom)) break;
+    }
+    return q;
+  }
+
+  function startCatch() {
+    S = {
+      mode: 'catch', speed: store.speed === 'fast' ? 'fast' : 'calm',
+      queue: buildCatchQueue(), idx: 0, lives: LIVES, streak: 0, score: 0, clean: 0, mistakes: 0,
+      missed: new Map(), caught: new Set(), card: null, cs: null, cr: null, paused: false,
+      timerId: null, remain: 0, last: 0
+    };
+    show('catch');
+    lockSwipes(true);
+    startCatchRound();
+    ensureCatchLoop();
+  }
+
+  function catchLabel() {
+    return 'Что значит выделенное?' + (S.card.base ? '' : ' · повтор');
+  }
+
+  function drawCatchSentence() {
+    const v = S.card.idiom.variants[S.card.vi];
+    const box = $('c-sentence');
+    box.replaceChildren();
+    box.lang = 'en';
+    box.classList.remove('ru');
+    for (const part of partsOf(v)) {
+      if (part.kind === 'tok') {
+        box.append(part.tok.t === 'text' ? document.createTextNode(part.tok.text) : wordBtn(part.tok, false));
+      } else {
+        const run = el('span', 'run');
+        for (const t of part.toks) run.append(t.t === 'word' ? wordBtn(t, true) : el('span', 'gap idiom', t.text));
+        box.append(run);
+      }
+    }
+  }
+
+  function heroState(kind) {
+    const src = HEROES[kind] || HEROES.neutral;
+    const img = $('c-hero');
+    if (src && img.getAttribute('src') !== src) img.setAttribute('src', src);
+    const wolf = $('c-wolf');
+    wolf.classList.remove('happy', 'sad');
+    if (kind === 'happy' || kind === 'sad') {
+      void wolf.offsetWidth;            // restart the animation
+      wolf.classList.add(kind);
+    }
+  }
+
+  function startCatchRound() {
+    const card = S.card = S.queue[S.idx];
+    const others = shuffle(IDIOMS.filter((x) => x !== card.idiom)).slice(0, 2);
+    S.cr = {
+      options: shuffle([card.idiom].concat(others)), lane: 1, t: 0,
+      boost: false, hint: false, ru: false, phase: 'ready', timer: READY_S, ok: null, points: 0
+    };
+    drawCatchSentence();
+    $('c-label').textContent = catchLabel();
+    $('c-peek').textContent = 'Нажмите на слово — появится перевод';
+    $('c-peek').classList.add('idle');
+    cCards.forEach((c, i) => {
+      c.className = 'c-lane';
+      c.firstElementChild.textContent = S.cr.options[i].short;
+    });
+    heroState('neutral');
+    $('c-hint').setAttribute('aria-pressed', 'false');
+    $('c-hint').textContent = 'Перевод';
+    $('c-boost').disabled = false;
+    hideCatchModal();
+    paintWolf();
+    updateCatchCards();
+    updateCatchHud();
+  }
+
+  function paintWolf() { $('c-wolf').style.setProperty('--lane', String(S && S.cr ? S.cr.lane : 1)); }
+
+  function updateCatchCards() {
+    const r = S && S.cr;
+    if (!r) return;
+    const H = $('c-field').clientHeight || FALLBACK_H;
+    const travel = H - WOLF_ZONE + 8;
+    const y = -CARD_H + r.t * travel;
+    cCards.forEach((c) => c.style.setProperty('--y', y.toFixed(1) + 'px'));
+  }
+
+  function updateCatchHud() {
+    document.querySelectorAll('#c-hearts .c-heart').forEach((h, i) => h.classList.toggle('lost', i >= S.lives));
+    $('c-hearts').setAttribute('aria-label', 'Жизней: ' + S.lives + ' из ' + LIVES);
+    $('c-prog-text').textContent = 'Поймано ' + S.caught.size + ' из ' + CATCH_TOTAL;
+    $('c-prog-bar').style.width = Math.round((S.caught.size / CATCH_TOTAL) * 100) + '%';
+    $('c-score').textContent = String(S.score);
+  }
+
+  function moveWolf(i) {
+    const r = S && S.mode === 'catch' ? S.cr : null;
+    if (!r || S.paused) return;
+    if (r.phase !== 'ready' && r.phase !== 'fall') return;
+    const lane = clamp(i, 0, 2);
+    if (lane === r.lane) return;
+    r.lane = lane;
+    paintWolf();
+    haptic('tick');
+  }
+
+  function catchHint() {
+    const r = S && S.mode === 'catch' ? S.cr : null;
+    if (!r || S.paused || (r.phase !== 'ready' && r.phase !== 'fall')) return;
+    r.hint = true;
+    r.ru = !r.ru;
+    const box = $('c-sentence');
+    if (r.ru) {
+      box.textContent = S.card.idiom.variants[S.card.vi].ru;
+      box.classList.add('ru');
+      box.lang = 'ru';
+      $('c-label').textContent = 'Перевод (очков за фразу меньше)';
+    } else {
+      drawCatchSentence();
+      $('c-label').textContent = catchLabel();
+    }
+    $('c-hint').setAttribute('aria-pressed', String(r.ru));
+    $('c-hint').textContent = r.ru ? 'English' : 'Перевод';
+  }
+
+  function catchBoost() {
+    const r = S && S.mode === 'catch' ? S.cr : null;
+    if (!r || S.paused) return;
+    if (r.phase === 'ready') { r.phase = 'fall'; r.timer = 0; }
+    if (r.phase === 'fall') { r.boost = true; $('c-boost').disabled = true; }
+  }
+
+  function catchTick(dt) {
+    if (!S || S.mode !== 'catch' || S.paused) return;
+    const r = S.cr;
+    if (!r) return;
+    if (r.phase === 'ready') {
+      r.timer -= dt;
+      if (r.timer <= 0) r.phase = 'fall';
+    } else if (r.phase === 'fall') {
+      r.t = Math.min(1, r.t + (dt / FALL[S.speed]) * (r.boost ? BOOST : 1));
+      updateCatchCards();
+      if (r.t >= 1) resolveCatch();
+    } else if (r.phase === 'landed') {
+      r.timer -= dt;
+      if (r.timer <= 0) { r.phase = 'feedback'; showCatchFeedback(); }
+    }
+  }
+
+  function resolveCatch() {
+    const r = S && S.cr;
+    if (!r || r.phase !== 'fall') return;
+    const card = S.card, idiom = card.idiom;
+    r.ok = r.options[r.lane] === idiom;
+    r.phase = 'landed';
+    r.timer = LANDED_S;
+    $('c-boost').disabled = true;
+    if (r.ok) {
+      S.streak++;
+      r.points = (r.hint ? 5 : 10) + Math.min(S.streak - 1, 5) * 2;
+      S.score += r.points;
+      S.caught.add(cardKey(card));
+      if (!r.hint) {
+        setCount(idiom.id, card.vi, getCount(idiom.id, card.vi) + 1);
+        if (card.base) S.clean++;
+      }
+    } else {
+      S.streak = 0;
+      S.mistakes++;
+      S.lives--;
+      setCount(idiom.id, card.vi, 0);
+      S.missed.set(cardKey(card), card);
+      if (S.lives > 0) S.queue.splice(Math.min(S.queue.length, S.idx + 3), 0, { idiom, vi: card.vi, base: false });
+    }
+    saveStore();
+    cCards.forEach((c, i) => {
+      c.classList.remove('is-right', 'is-wrong', 'is-dim');
+      if (r.options[i] === idiom) c.classList.add('is-right');
+      else if (i === r.lane) c.classList.add('is-wrong');
+      else c.classList.add('is-dim');
+    });
+    heroState(r.ok ? 'happy' : 'sad');
+    haptic(r.ok ? 'ok' : 'bad');
+    say(r.ok ? 'Верно' : 'Неверно');
+    updateCatchHud();
+  }
+
+  function showCatchModal(html) {
+    $('c-sheet').innerHTML = html;
+    $('c-modal').hidden = false;
+    const primary = $('c-sheet').querySelector('[data-primary]');
+    if (primary) { try { primary.focus({ preventScroll: true }); } catch (e) { /* ignore */ } }
+  }
+  function hideCatchModal() {
+    $('c-modal').hidden = true;
+    $('c-sheet').innerHTML = '';
+  }
+
+  function showCatchFeedback() {
+    const r = S.cr, card = S.card, idiom = card.idiom, v = idiom.variants[card.vi];
+    const finished = S.lives <= 0 || S.idx >= S.queue.length - 1;
+    const head = r.ok
+      ? '<h2 class="c-mh ok" id="c-modal-title">Верно! <span>+' + r.points + '</span></h2>'
+      : '<h2 class="c-mh bad" id="c-modal-title">Не совсем</h2>';
+    const meaning =
+      '<p class="c-meaning"><b>' + escHtml(idiom.title) + '</b><br>' + escHtml(idiom.meaning) +
+      '<span class="c-note">Форма. ' + escHtml(v.form) + (v.note ? ' ' + escHtml(v.note) : '') + '</span></p>';
+    const again = !r.ok && S.lives > 0 ? '<p class="c-again">Эта фраза ещё вернётся, и ты её поймаешь.</p>' : '';
+    showCatchModal(
+      head +
+      '<p class="c-en" lang="en">' + hlHtml(v.en) + '</p>' +
+      '<p class="c-ru" lang="ru">' + escHtml(v.ru) + '</p>' +
+      meaning + again +
+      '<div class="row"><button type="button" class="btn primary big" data-cact="next" data-primary>' +
+      (finished ? 'Результат' : 'Дальше') + '</button></div>'
+    );
+  }
+
+  function catchNext() {
+    if (!S || S.mode !== 'catch' || !S.cr || S.cr.phase !== 'feedback') return;
+    if (S.lives <= 0) return endRound(false);
+    S.idx++;
+    if (S.idx >= S.queue.length) return endRound(true);
+    startCatchRound();
+  }
+
+  function catchPause() {
+    if (!S || S.mode !== 'catch' || S.paused || !S.cr) return;
+    const ph = S.cr.phase;
+    if (ph !== 'ready' && ph !== 'fall' && ph !== 'landed') return;
+    S.paused = true;
+    showCatchModal(
+      '<h2 class="c-mh" id="c-modal-title">Пауза</h2>' +
+      '<p class="c-ru">Игра ждёт. Можно спокойно перечитать фразу.</p>' +
+      '<div class="row">' +
+        '<button type="button" class="btn primary big" data-cact="resume" data-primary>Продолжить</button>' +
+        '<button type="button" class="btn" data-cact="menu">В меню</button>' +
+      '</div>'
+    );
+  }
+  function catchResume() {
+    if (!S || S.mode !== 'catch' || !S.paused) return;
+    S.paused = false;
+    hideCatchModal();
+  }
+  function catchMenu() {
+    hideCatchModal();
+    S = null;
+    lockSwipes(false);
+    renderStart();
+    show('start');
+  }
+
+  /* animation loop (only while the catch screen is on) */
+  let cLooping = false, cLast = 0;
+  const raf = window.requestAnimationFrame ? window.requestAnimationFrame.bind(window) : (cb) => setTimeout(() => cb(Date.now()), 16);
+  function catchFrame(ts) {
+    if (!S || S.mode !== 'catch' || $('s-catch').hidden) { cLooping = false; return; }
+    const dt = cLast ? clamp((ts - cLast) / 1000, 0, 0.05) : 0;
+    cLast = ts;
+    catchTick(dt);
+    raf(catchFrame);
+  }
+  function ensureCatchLoop() {
+    if (NO_LOOP || cLooping) return;
+    cLooping = true; cLast = 0;
+    raf(catchFrame);
+  }
+
+  /* ---------- wiring ---------- */
+  const resetBtn = $('reset');
+  let resetArmed = false, resetTimer = null;
+  resetBtn.addEventListener('click', () => {
+    if (!resetArmed) {
+      resetArmed = true;
+      resetBtn.textContent = 'Точно сбросить? Нажмите ещё раз';
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => { resetArmed = false; resetBtn.textContent = 'Сбросить прогресс'; }, 4000);
+      return;
+    }
+    clearTimeout(resetTimer);
+    store = fresh();
+    saveStore();
+    renderStart();
+  });
+  document.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => startRound(b.dataset.mode)));
+  document.querySelectorAll('.seg').forEach((b) => b.addEventListener('click', () => {
+    store.speed = b.dataset.speed === 'fast' ? 'fast' : 'calm';
+    saveStore();
+    document.querySelectorAll('.seg').forEach((x) => x.setAttribute('aria-checked', String(x.dataset.speed === store.speed)));
+  }));
+  /* catch mode controls */
+  $('c-pause').addEventListener('click', catchPause);
+  $('c-hint').addEventListener('click', catchHint);
+  $('c-boost').addEventListener('click', catchBoost);
+  $('c-modal').addEventListener('click', (e) => {
+    const t = e.target.closest ? e.target.closest('[data-cact]') : null;
+    if (!t) return;
+    const act = t.getAttribute('data-cact');
+    if (act === 'next') catchNext();
+    else if (act === 'resume') catchResume();
+    else if (act === 'menu') catchMenu();
+  });
+  let dragging = false;
+  const fieldEl = $('c-field');
+  function pointerToLane(e) {
+    const rect = fieldEl.getBoundingClientRect();
+    if (!rect.width) return;
+    moveWolf(Math.floor(((e.clientX - rect.left) / rect.width) * 3));
+  }
+  fieldEl.addEventListener('pointerdown', (e) => {
+    dragging = true;
+    try { fieldEl.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+    pointerToLane(e);
+  });
+  fieldEl.addEventListener('pointermove', (e) => { if (dragging || e.pointerType === 'mouse') pointerToLane(e); });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((n) => fieldEl.addEventListener(n, () => { dragging = false; }));
+  document.addEventListener('keydown', (e) => {
+    if (!S || S.mode !== 'catch' || $('s-catch').hidden || e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key;
+    if (k === 'ArrowLeft' || k === 'a' || k === 'A') { if (S.cr) moveWolf(S.cr.lane - 1); e.preventDefault(); }
+    else if (k === 'ArrowRight' || k === 'd' || k === 'D') { if (S.cr) moveWolf(S.cr.lane + 1); e.preventDefault(); }
+    else if (k === 'Escape' || k === 'p' || k === 'P') { if (S.paused) catchResume(); else catchPause(); }
+  });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) catchPause(); });
+  $('no-timer').addEventListener('click', () => {
+    store.noTimer = !store.noTimer;
+    saveStore();
+    $('no-timer').setAttribute('aria-checked', String(store.noTimer));
+  });
+  $('hint').addEventListener('click', () => {
+    if (!S || S.cs.answered) return;
+    S.cs.hinted = true;
+    $('hint').hidden = true;
+    $('hint-ru').hidden = false;
+  });
+  $('next').addEventListener('click', next);
+  $('quit').addEventListener('click', () => { stopTimer(); S = null; renderStart(); show('start'); });
+  $('home').addEventListener('click', () => { S = null; renderStart(); show('start'); });
+  $('again').addEventListener('click', () => startRound(S.mode));
+  $('copy').addEventListener('click', () => {
+    const text = resultText();
+    const fallback = () => { const b = $('copy-box'); b.value = text; b.hidden = false; b.focus(); b.select(); };
+    try {
+      navigator.clipboard.writeText(text).then(() => { $('copy').textContent = 'Скопировано'; }, fallback);
+    } catch (e) { fallback(); }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (!S || $('s-play').hidden || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (!S.cs.answered && S.mode === 'choose' && /^[1-3]$/.test(e.key)) {
+      const b = S.cs.opts[+e.key - 1];
+      if (b) b.click();
+    } else if (S.cs.answered && e.key === 'Enter' && document.activeElement !== $('next')) {
+      $('next').click();
+    }
+  });
+
+  $('time-s').textContent = String(DEFAULT_SECONDS);
+  initTelegram();
+  paintHeroes();
+  renderStart();
+  if (T) {
+    T.api = {
+      state: () => S, store: () => store, partsOf,
+      catch: {
+        tick: catchTick, setLane: moveWolf, boost: catchBoost, hint: catchHint, pause: catchPause, resume: catchResume,
+        next: catchNext, resolve: resolveCatch, menu: catchMenu,
+        advance(sec) { let left = sec; while (left > 0) { const d = Math.min(0.05, left); catchTick(d); left -= d; } },
+        constants: { FALL, BOOST, READY_S, LANDED_S, LIVES, CATCH_TOTAL }
+      }
+    };
+  }
+})();
+
+</script>
+</body>
+</html>
